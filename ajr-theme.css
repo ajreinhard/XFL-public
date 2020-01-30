@@ -1,0 +1,89 @@
+body {
+  font-family: Arial;
+  font-size: 1em;
+ }
+
+
+.primary td {
+  font-family: Arial;
+  font-variant: small-caps;
+  font-size: 2em;
+  width: 8em;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.primary th {
+  font-family: Arial;
+  font-variant: small-caps;
+  font-size: 2em;
+  width: 8em;
+  font-weight: bold;
+}
+
+table {
+	border: 5px solid black;
+	width: 100%;
+}
+
+.team td {
+  font-family: Arial;
+  padding: 5px;
+  font-weight: bold;
+}
+
+
+
+.team td:nth-child(1) {
+	width: 1%;
+}
+.team td:nth-child(2) {
+	width: 20%;
+}
+.team td:nth-child(3) {
+	width: 60%;
+	
+}
+.team td:nth-child(4) {
+	width: 10%;
+}
+.team td:nth-child(5) {
+	width: 50%;
+}
+
+
+
+/* BUTTON CSS */
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-family: Arial;
+  font-size: 2em;
+  /*background-size: contain;*/
+  background-size: 20%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+  background-color: #ccc;
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+
+
+

@@ -1,4 +1,4 @@
-setwd('C:/Users/rei1740/Desktop/Anthony/XFL')
+setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
 #Bovada American Odds in Tm Order
 bovada_odds <- c('DAL'=300,'DC'=750,'HOU'=750,'LA'=500,'NY'=400,'SEA'=1100,'STL'=900,'TB'=500)
