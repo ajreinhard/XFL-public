@@ -11,7 +11,7 @@ teams_df <- read.csv('teams.csv', stringsAsFactors = F)
 K_fct <- 20
 home_adv <- 65
 reg_szn_gms <- 10
-sim_cnt <- 10000
+sim_cnt <- 1000
 
 implied_start <- 1500 + 25 * c('DAL'=1.85,'DC'=-0.65,'HOU'=-0.65,'LA'=0.55,'NY'=1.15,'SEA'=-1.65,'STL'=-1.15,'TB'=0.55)
 (sum(implied_start) - 1500*8) / 25
@@ -33,7 +33,7 @@ for (wk in unique(gms_ply_df$Week)) {
   this_wk$HomeWin <- ifelse(this_wk$HomeScore > this_wk$AwayScore, 1, 0)
   this_wk$EloChng <-  (this_wk$HomeWin - this_wk$HomeWinProb) * 
     K_fct *
-    ln(abs(this_wk$HomeScore - this_wk$AwayScore) + 1) * 
+    log(abs(this_wk$HomeScore - this_wk$AwayScore) + 1) * 
     (2.2/(2.2 + (ifelse(this_wk$HomeWin==1,1/1000,-1/1000) * (this_wk$RateHome - this_wk$RateAway + home_adv))))
   this_wk$RateHomeNew <- this_wk$RateHome + this_wk$EloChng
   this_wk$RateAwayNew <- this_wk$RateAway - this_wk$EloChng
@@ -149,10 +149,20 @@ rate_avg <- apply(sim_res_df[,paste0(xfl_tms,'_Rating')],2,mean)
 
 sim_final_df <- data.frame(cbind(po_odds,div_champ_odds,final_odds,champ_odds,rate_avg,wins_avg),stringsAsFactors = F)
 
+if (length(ply_gm_df)!=0) {
+winners <- ifelse(ply_gm_df$HomeWin==1,ply_gm_df$Home,ply_gm_df$Away)
+losers <- ifelse(ply_gm_df$HomeWin==0,ply_gm_df$Home,ply_gm_df$Away)
+} else {
+winners <- NA
+losers <- NA
+}
 
 sim_final_df$vegas_implied <- bovada_implied_prob
 sim_final_df$pre_season_ratings <- implied_start
 sim_final_df$current_ratings <- curr_ratings
+sim_final_df$wins <- table(factor(winners, xfl_teams))
+sim_final_df$losses <- table(factor(losers, xfl_teams))
+
 write.csv(sim_final_df, 'sim results.csv')
 
 plot(sim_final_df$vegas_implied, sim_final_df$champ_odds, xlim = c(0,.3), ylim = c(0,.3), type='n') +
@@ -161,7 +171,6 @@ plot(sim_final_df$vegas_implied, sim_final_df$champ_odds, xlim = c(0,.3), ylim =
 
 
 #all_gms[grepl('TB', all_gms$concat),]
-
 
 
 

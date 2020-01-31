@@ -3,7 +3,6 @@ body {
   font-size: 1em;
  }
 
-
 .primary td {
   font-family: Arial;
   font-variant: small-caps;
@@ -13,13 +12,44 @@ body {
   padding: 5px;
 }
 
+th {
+  font-family: Arial;
+  font-variant: small-caps;
+  font-weight: bold;
+}
+
 .primary th {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.games-now {
+  border: 0px;
   font-family: Arial;
   font-variant: small-caps;
   font-size: 2em;
-  width: 8em;
-  font-weight: bold;
 }
+
+.empty {
+  background-color: blue;
+  position: relative;
+  float: left;
+}
+
+.team-bar {
+  position: relative;
+  float: left;
+  color: transparent;
+  border: 1px solid;
+}
+
+.win-bar {
+  height: 1em;
+  overflow: hidden;
+  clear: both;
+  white-space: nowrap;
+}
+
 
 table {
 	border: 5px solid black;
@@ -32,25 +62,24 @@ table {
   font-weight: bold;
 }
 
-
-
 .team td:nth-child(1) {
-	width: 1%;
+	/*width: 1%;*/
 }
 .team td:nth-child(2) {
 	width: 20%;
 }
 .team td:nth-child(3) {
-	width: 60%;
-	
+	width: 50%;
 }
 .team td:nth-child(4) {
 	width: 10%;
 }
 .team td:nth-child(5) {
-	width: 50%;
+	width: 10%;
 }
-
+.team td:nth-child(6) {
+	width: 30%;
+}
 
 
 /* BUTTON CSS */
@@ -65,11 +94,11 @@ table {
   text-align: left;
   outline: none;
   font-family: Arial;
+  font-variant: small-caps;
   font-size: 2em;
-  /*background-size: contain;*/
   background-size: 20%;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: 70% 50%;
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
@@ -83,6 +112,19 @@ table {
   display: none;
   overflow: hidden;
   background-color: #f1f1f1;
+  transition: max-height 0.2s ease-out;
+}
+
+.collapsible:after {
+  content: '\02795'; /* Unicode character for "plus" sign (+) */
+  font-size: 1em;
+  color: blue;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2796"; /* Unicode character for "minus" sign (-) */
 }
 
 
