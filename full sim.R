@@ -1,19 +1,26 @@
 setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
 #Bovada American Odds in Tm Order
-bovada_odds <- c('DAL'=300,'DC'=750,'HOU'=750,'LA'=500,'NY'=400,'SEA'=1100,'STL'=900,'TB'=500)
-bovada_implied_prob <- 100/(bovada_odds+100)
-bovada_implied_prob <- bovada_implied_prob/sum(bovada_implied_prob)
+#bovada_odds <- c('DAL'=300,'DC'=700,'HOU'=750,'LA'=550,'NY'=400,'SEA'=1100,'STL'=800,'TB'=500)
 
+odds_df <- read.csv('preseason.csv', stringsAsFactors = F, row.names = 1)
 games_df <- read.csv('sched.csv', stringsAsFactors = F)
 teams_df <- read.csv('teams.csv', stringsAsFactors = F)
+
+xfl_teams <- row.names(odds_df)
+
+bovada_odds <- apply(odds_df, 1, mean)
+bovada_implied_prob <- 100/(bovada_odds+100)
+bovada_implied_prob <- bovada_implied_prob/sum(bovada_implied_prob)
 
 K_fct <- 20
 home_adv <- 65
 reg_szn_gms <- 10
-sim_cnt <- 1000
+sim_cnt <- 10000
 
-implied_start <- 1500 + 25 * c('DAL'=1.85,'DC'=-0.65,'HOU'=-0.65,'LA'=0.55,'NY'=1.15,'SEA'=-1.65,'STL'=-1.15,'TB'=0.55)
+#implied_start <- 1500 + 25 * c('DAL'=1.9,'DC'=-0.5,'HOU'=-0.65,'LA'=0.3,'NY'=1.05,'SEA'=-1.65,'STL'=-0.95,'TB'=0.5)
+#(bovada_implied_prob/old_bov)
+implied_start <- 1500 + 25 * c('DAL'=1.4,'DC'=0.45,'HOU'=-0.6,'LA'=-0.45,'NY'=0.15,'SEA'=-1.5,'STL'=-0.65,'TB'=1.2)
 (sum(implied_start) - 1500*8) / 25
 names(implied_start) <- NULL
 
@@ -164,16 +171,13 @@ sim_final_df$wins <- table(factor(winners, xfl_teams))
 sim_final_df$losses <- table(factor(losers, xfl_teams))
 
 write.csv(sim_final_df, 'sim results.csv')
+write.csv(sim_res_df,'sim_res.csv',row.names=F)
 
-plot(sim_final_df$vegas_implied, sim_final_df$champ_odds, xlim = c(0,.3), ylim = c(0,.3), type='n') +
-  lines(c(0,.3),c(0,.3)) +
-  text(sim_final_df$vegas_implied, sim_final_df$champ_odd, row.names(sim_final_df), cex = .5)
+
+#plot(sim_final_df$vegas_implied, sim_final_df$champ_odds, xlim = c(0,.3), ylim = c(0,.3), type='n') +
+#  lines(c(0,.3),c(0,.3)) +
+#  text(sim_final_df$vegas_implied, sim_final_df$champ_odd, row.names(sim_final_df), cex = .5)
 
 
 #all_gms[grepl('TB', all_gms$concat),]
-
-
-
-
-
-
+#sample(c('aj','ty','dev','jake','seth','cory'),size=6, replace = FALSE)

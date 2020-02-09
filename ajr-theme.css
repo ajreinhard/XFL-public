@@ -3,14 +3,41 @@ body {
   font-size: 1em;
  }
 
+h1 {
+  font-family: Arial;
+  font-variant: small-caps;
+}
+
+h2 {
+  font-family: Arial;
+  font-variant: small-caps;
+}
+
 .primary td {
   font-family: Arial;
   font-variant: small-caps;
-  font-size: 2em;
-  width: 8em;
+  font-size: 1.5em;
   font-weight: bold;
   padding: 5px;
 }
+
+
+.primary td:nth-child(1) {
+	width: 30%;
+}
+.primary td:nth-child(2) {
+	width: 15%;
+}
+.primary td:nth-child(3) {
+	width: 20%;
+}
+.primary td:nth-child(4) {
+	width: 20%;
+}
+.primary td:nth-child(5) {
+	width: 15%;
+}
+
 
 th {
   font-family: Arial;
@@ -30,6 +57,10 @@ th {
   font-size: 2em;
 }
 
+.games-now td:nth-child(2) {
+	width: 80%;
+}
+
 .empty {
   background-color: blue;
   position: relative;
@@ -39,8 +70,10 @@ th {
 .team-bar {
   position: relative;
   float: left;
-  color: transparent;
-  border: 1px solid;
+  border: 0.15em solid;
+  font-size: 0.8em;
+  padding: 0.4em;
+  font-weight: bold;
 }
 
 .win-bar {
@@ -48,8 +81,9 @@ th {
   overflow: hidden;
   clear: both;
   white-space: nowrap;
+  border-top: 4px solid grey;
+  padding: 15px;
 }
-
 
 table {
 	border: 5px solid black;
@@ -62,23 +96,21 @@ table {
   font-weight: bold;
 }
 
-.team td:nth-child(1) {
-	/*width: 1%;*/
-}
 .team td:nth-child(2) {
-	width: 20%;
+  font-size: 0.7em;
 }
-.team td:nth-child(3) {
-	width: 50%;
-}
+
+
 .team td:nth-child(4) {
-	width: 10%;
+  font-size: 1.2em;
 }
+
 .team td:nth-child(5) {
-	width: 10%;
+	font-size: 1em;
 }
+
 .team td:nth-child(6) {
-	width: 30%;
+	font-size: 1.2em;
 }
 
 
@@ -96,7 +128,7 @@ table {
   font-family: Arial;
   font-variant: small-caps;
   font-size: 2em;
-  background-size: 20%;
+  background-size: 17%;
   background-repeat: no-repeat;
   background-position: 70% 50%;
 }
