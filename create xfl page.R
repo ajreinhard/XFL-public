@@ -68,7 +68,7 @@ games_df$weekday <- format(games_df$GameDateTime, format = "%a")
 games_df <- games_df[order(games_df$GameDateTime),]
 
 sim_df$pretty_rate_curr <- sprintf("%.2f",round((sim_df$current_ratings - 1500)/25,2))
-sim_df$arrow <- paste0('<img src="tv-logo/arrow',rnk_chg,'.png" height=25em align="right" vertical-align="middle">')
+sim_df$arrow <- paste0('<img src="tv-logo/arrow',rnk_chg,'.png" height=26em align="right" vertical-align="middle">')
 sim_df$Record <- paste0(sim_df$wins,'-',sim_df$losses)
 
 primary_df <- data.frame('arrow'=sim_df$arrow,'Team' = xfl_teams, 'Record'=sim_df$Record, 'Rating'=sim_df$pretty_rate_curr, stringsAsFactors = F)
