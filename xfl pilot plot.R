@@ -15,10 +15,10 @@ off_epa <- merge(off_epa, teams_df, by.x = 'ClubCode', by.y = 'Abbr', all.x=T)
 off_epa <- merge(off_epa, PFF_df[which(PFF_df$Type=='Offense'),], by.x = 'Full', by.y = 'Team', all.x=T)
 off_epa$logos <- paste0('logos/',off_epa$ClubCode,'.png')
 
-ggplot(data = off_epa,aes(x = Grade, y = epa_per_play)) +
-	geom_image(aes(image = logos), size = 0.13) +
-	labs(x = 'PFF Team Offensive Grade',
-	y = 'Offensive EPA / Play',
+ggplot(data = off_epa,aes(y = Grade, x = epa_per_play)) +
+	geom_image(aes(image = logos), size = 0.15) +
+	labs(y = 'PFF Team Offensive Grade',
+	x = 'Offensive EPA / Play',
 	caption = 'By Anthony Reinhard \nData from XFL.com and PFF | EPA model from @nflscrapeR',
 	title = 'XFL Team Offense',
 	subtitle = 'Through Week 1 of 2020') +
@@ -37,4 +37,4 @@ ggplot(data = off_epa,aes(x = Grade, y = epa_per_play)) +
 	)
 
 
-ggsave('sample.png',dpi = 1000)
+ggsave('offense.png',dpi = 1000)
