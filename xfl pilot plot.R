@@ -1,32 +1,40 @@
-rm(list = ls())
-
 library(ggplot2)
-library(png)
 library(ggimage)
 
-setwd('C:/Users/Owner/Documents/GitHub/XFL/XFL')
-#install.packages('ggimage', version = '0.2.5')
-#devtools::install_github("GuangchuangYu/ggimage")
+setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
+teams_df <- read.csv('teams.csv', stringsAsFactors=F)
+PFF_df <- read.csv('epa/PFF grades.csv', stringsAsFactors=F)
 
-XFL_samp_df <- data.frame('logos'=dir('logos',full=T)[1:8],'x'=rnorm(8),'y'=rnorm(8), stringsAsFactors=F)
+pbp_df <- do.call(rbind, lapply(dir('epa/post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
 
+off_epa <- aggregate(cbind(plays=1,epa) ~ ClubCode, data = pbp_df, FUN = sum, subset = PlayType == 'Pass' | PlayType == 'Rush')
+off_epa$epa_per_play <- off_epa$epa / off_epa$plays
 
-ggplot(data = XFL_samp_df,aes(x = x, y = y)) +
+off_epa <- merge(off_epa, teams_df, by.x = 'ClubCode', by.y = 'Abbr', all.x=T)
+off_epa <- merge(off_epa, PFF_df[which(PFF_df$Type=='Offense'),], by.x = 'Full', by.y = 'Team', all.x=T)
+off_epa$logos <- paste0('logos/',off_epa$ClubCode,'.png')
+
+ggplot(data = off_epa,aes(x = Grade, y = epa_per_play)) +
 	geom_image(aes(image = logos), size = 0.13) +
-      geom_hline(yintercept=0, color = 'grey90', size = 1.1) + 
-      geom_vline(xintercept=0, color = 'grey90', size = 1.1) + 
-	labs(x = 'Offensive EPA / Play',
-	y = 'Defensive EPA / Play',
-	caption = 'By Anthony Reinhard | Data from XFL.com\nEPA formula from @nflscrapeR',
-	title = 'XFL Offensive & Defensive Efficiency',
+	labs(x = 'PFF Team Offensive Grade',
+	y = 'Offensive EPA / Play',
+	caption = 'By Anthony Reinhard \nData from XFL.com and PFF | EPA model from @nflscrapeR',
+	title = 'XFL Team Offense',
 	subtitle = 'Through Week 1 of 2020') +
 	theme_bw() +
-	theme(axis.title = element_text(size = 10),
-	axis.text = element_text(size = 6),
-	plot.title = element_text(size = 12),
-	plot.subtitle = element_text(size = 10),
-      plot.caption = element_text(size = 6))
+	theme(
+        #text = element_text(family='Bahnschrift', color='darkblue'),
+	  text = element_text(color='darkblue'),
+        plot.background = element_rect(fill = 'grey95'),
+        panel.border = element_rect(color = 'darkblue'),
+        axis.ticks = element_line(color = 'darkblue'),
+        axis.title = element_text(size = 10),
+        axis.text = element_text(size = 8, color = 'darkblue'),
+        plot.title = element_text(size = 14),
+        plot.subtitle = element_text(size = 8),
+        plot.caption = element_text(size = 5)
+	)
 
 
 ggsave('sample.png',dpi = 1000)

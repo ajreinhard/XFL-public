@@ -121,8 +121,10 @@ sim_res <- sapply(1:sim_cnt, function(sm) {
   #champ
   div1_chmp <- div_split[[1]]$Tm[ifelse(playoff_hm_win[1]==1,1,2)]
   div2_chmp <- div_split[[2]]$Tm[ifelse(playoff_hm_win[2]==1,1,2)]
-  
-  div1_chmp_win_prob <- 1/(1+10^(-(rate_curr$Rate[match(div1_chmp, rate_curr$Tm)] - rate_curr$Rate[match(div2_chmp, rate_curr$Tm)])/400))
+
+  #houston home adv
+  chmp_hm_adv <- ifelse(div1_chmp=='HOU',65,0)
+  div1_chmp_win_prob <- 1/(1+10^(-(rate_curr$Rate[match(div1_chmp, rate_curr$Tm)] - rate_curr$Rate[match(div2_chmp, rate_curr$Tm)] + chmp_hm_adv)/400))
   div1_chmp_win <- ifelse(runif(1) < div1_chmp_win_prob, 1, 0)
   EloChng_chmp <- (div1_chmp_win - div1_chmp_win_prob) * K_fct
   
