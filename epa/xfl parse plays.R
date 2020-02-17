@@ -103,10 +103,10 @@ write.csv(pbp_df, paste0('post-epa/',i,'.csv'), row.names = F)
 
 11*60+54
 
-temp_df <- data.frame('SecondsLeftInHalfStart'=714
-					,'Yardline100'=80
-					,'Down'=1
-					,'Distance'=10
+temp_df <- data.frame('SecondsLeftInHalfStart'=743
+					,'Yardline100'=49
+					,'Down'=2
+					,'Distance'=2
 					,'GoalToGo'=0)
 
 calculate_expected_points(temp_df

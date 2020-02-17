@@ -40,7 +40,7 @@ for (wk in unique(gms_ply_df$Week)) {
   rate_wk <- rbind(rate_curr$Rate,rate_wk)
 }
 
-if (length(ply_gm_df)!=0) {
+if (nrow(ply_gm_df)!=0) {
 games_df <- merge(games_df, ply_gm_df[,c('Away','Home','Week','RateHome','RateAway')], by = c('Away','Home','Week'), all.x = T)
 rnk_chg <- rank(rate_wk[1,] + 1:8/10000)-rank(rate_wk[2,] + 1:8/10000)
 rnk_chg <- ifelse(rnk_chg==0,'No',ifelse(rnk_chg>0,paste0('Up_',rate_curr$Tm),paste0('Down_',rate_curr$Tm)))

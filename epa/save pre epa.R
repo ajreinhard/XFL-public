@@ -6,7 +6,7 @@ setwd('C:/Users/Owner/Documents/GitHub/XFL/epa')
 
 #####SAVE RAW DATA
 #####MAKE SOME MANUAL EDITS AFTER
-for (i in 1:4) {
+for (i in 9:12) {
 URL <- paste0('http://stats.xfl.com/',i)
 webpage <- read_html(URL)
 
