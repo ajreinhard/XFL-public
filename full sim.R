@@ -13,10 +13,14 @@ bovada_odds <- apply(odds_df, 1, mean)
 bovada_implied_prob <- 100/(bovada_odds+100)
 bovada_implied_prob <- bovada_implied_prob/sum(bovada_implied_prob)
 
+TD_margin_dist <- c(.002,.0479,.2354,.3135,.2266,.1006,.0488,.0195,.0049,.0008)
+names(TD_margin_dist) <- -2:7
+
 K_fct <- 20
 home_adv <- 65
 reg_szn_gms <- 10
 sim_cnt <- 10000
+
 
 #implied_start <- 1500 + 25 * c('DAL'=1.9,'DC'=-0.5,'HOU'=-0.65,'LA'=0.3,'NY'=1.05,'SEA'=-1.65,'STL'=-0.95,'TB'=0.5)
 #(bovada_implied_prob/old_bov)
@@ -44,6 +48,8 @@ for (wk in unique(gms_ply_df$Week)) {
     (2.2/(2.2 + (ifelse(this_wk$HomeWin==1,1/1000,-1/1000) * (this_wk$RateHome - this_wk$RateAway + home_adv))))
   this_wk$RateHomeNew <- this_wk$RateHome + this_wk$EloChng
   this_wk$RateAwayNew <- this_wk$RateAway - this_wk$EloChng
+  this_wk$WinnerMargin <- abs(this_wk$HomeScore - this_wk$AwayScore)
+  this_wk$TD_margin <- ifelse(this_wk$HomeWin==1, this_wk$HomeTD - this_wk$AwayTD, this_wk$AwayTD - this_wk$HomeTD)
   rate_new <- data.frame('Tm'=c(this_wk$Away, this_wk$Home), 'NewRate'=c(this_wk$RateAwayNew, this_wk$RateHomeNew), stringsAsFactors = F)
   rate_curr <- merge(rate_curr, rate_new, by = 'Tm', all.x = T)
   rate_curr$Rate <- ifelse(is.na(rate_curr$NewRate), rate_curr$Rate, rate_curr$NewRate)
@@ -64,6 +70,8 @@ sim_res <- sapply(1:sim_cnt, function(sm) {
     this_wk$EloChng <- (this_wk$HomeWin - this_wk$HomeWinProb) * K_fct
     this_wk$RateHomeNew <- this_wk$RateHome + this_wk$EloChng
     this_wk$RateAwayNew <- this_wk$RateAway - this_wk$EloChng
+    this_wk$WinnerMargin <- ceiling(abs(rnorm(nrow(this_wk), mean=0, sd=15)))
+    this_wk$TD_margin <- as.numeric(sample(names(TD_margin_dist),nrow(this_wk), replace = F,prob=TD_margin_dist))
     rate_new <- data.frame('Tm'=c(this_wk$Away, this_wk$Home), 'NewRate'=c(this_wk$RateAwayNew, this_wk$RateHomeNew), stringsAsFactors = F)
     rate_curr <- merge(rate_curr, rate_new, by = 'Tm', all.x = T)
     rate_curr$Rate <- ifelse(is.na(rate_curr$NewRate), rate_curr$Rate, rate_curr$NewRate)
@@ -77,7 +85,8 @@ sim_res <- sapply(1:sim_cnt, function(sm) {
   all_gms <- merge(merge(all_gms, teams_df[,c('Abbr', 'Division')], by.x = 'Away', by.y = 'Abbr', all.x = T), teams_df[,c('Abbr', 'Division')], by.x = 'Home', by.y = 'Abbr', all.x = T, suffixes = c('Away','Home'))
   all_gms$DivGame <- ifelse(all_gms$DivisionAway==all_gms$DivisionHome, 'Div', 'Non')
   all_gms$TmWinner <- factor(ifelse(all_gms$HomeWin==1 & all_gms$Week <= 10, all_gms$Home, all_gms$Away), levels = rate_curr$Tm)
-  
+  all_gms$TmLoser <- factor(ifelse(all_gms$HomeWin==0 & all_gms$Week <= 10, all_gms$Home, all_gms$Away), levels = rate_curr$Tm)
+
   rate_curr <- merge(rate_curr, teams_df[,c('Abbr', 'Division')], by.x = 'Tm', by.y = 'Abbr', all.x = T)
   rate_curr$Wins <- table(all_gms$TmWinner)
   rate_curr$DivWins <- table(all_gms$TmWinner[which(all_gms$DivGame=='Div')])
@@ -87,22 +96,42 @@ sim_res <- sapply(1:sim_cnt, function(sm) {
   all_gms$LoserWPCT <- ifelse(all_gms$HomeWin==1, all_gms$WPCTAway, all_gms$WPCTHome)
   SOV_calc <- aggregate(LoserWPCT ~ TmWinner, data = all_gms, FUN = mean)
   rate_curr <- merge(rate_curr, SOV_calc, by.x = 'Tm', by.y = 'TmWinner', all.x = T)
-  
+
+  TD_mar_W <- aggregate(cbind(TD_margin,WinnerMargin) ~ TmWinner, data = all_gms, FUN = sum)
+  TD_mar_L <- aggregate(cbind(-TD_margin,-WinnerMargin) ~ TmLoser, data = all_gms, FUN = sum)
+  rate_curr <- merge(rate_curr, TD_mar_W, by.x = 'Tm', by.y = 'TmWinner', all.x = T)
+  rate_curr <- merge(rate_curr, TD_mar_L, by.x = 'Tm', by.y = 'TmLoser', all.x = T)
+  rate_curr$TD_mar <- rate_curr$TD_margin + rate_curr$V1
+  rate_curr$Pts_mar <- rate_curr$WinnerMargin + rate_curr$V2
+
   h2h_calc <- function(all_gms, tms_vec) {
     all_gms$concat <- paste0(all_gms$Away,'_',all_gms$Home)
     com_gms <- which(apply(sapply(tms_vec, function(x) ifelse(grepl(x, all_gms$concat),1,0)),1,sum)==2)
     com_wins <- table(all_gms$TmWinner[com_gms])
     return(ifelse(is.na(match(tms_vec,names(which(com_wins==max(com_wins))))),0,1))
   }
+
+  h2h_pts_calc <- function(all_gms, tms_vec) {
+    all_gms$concat <- paste0(all_gms$Away,'_',all_gms$Home)
+    com_gms <- which(apply(sapply(tms_vec, function(x) ifelse(grepl(x, all_gms$concat),1,0)),1,sum)==2)
+    com_gms_W_mar <- aggregate(WinnerMargin ~ TmWinner, data = all_gms[com_gms,], FUN=sum, drop=F)
+    com_gms_L_mar <- aggregate(-WinnerMargin ~ TmLoser, data = all_gms[com_gms,], FUN=sum, drop=F)
+    com_gms_tot_mar <- ifelse(is.na(com_gms_W_mar$WinnerMargin),0,com_gms_W_mar$WinnerMargin) + ifelse(is.na(com_gms_L_mar$'-WinnerMargin'),0,com_gms_L_mar$'-WinnerMargin')
+    names(com_gms_tot_mar) <- com_gms_W_mar$TmWinner
+    return(ifelse(is.na(match(tms_vec,names(which(com_gms_tot_mar==max(com_gms_tot_mar))))),0,1))
+  }
   
   div_split <- lapply(unique(rate_curr$Division), function(div) {
     div_df <- rate_curr[which(rate_curr$Division==div),]
     tied_wpct <- names(which(table(div_df$WPCT)>1))
     div_df$H2H <- 0
+    div_df$H2H_pts <- 0
     for (x in tied_wpct) {
       div_df$H2H[which(div_df$WPCT==x)] <- h2h_calc(all_gms, div_df$Tm[which(div_df$WPCT==x)])
+      div_df$H2H_pts[which(div_df$WPCT==x)] <- h2h_pts_calc(all_gms, div_df$Tm[which(div_df$WPCT==x)])
     }
-    div_df$TB_ord <- div_df$WPCT + div_df$H2H/100 + div_df$DivWins/1000 + div_df$LoserWPCT/1000 + runif(4)/10000000
+    #div_df$TB_ord <- div_df$WPCT + div_df$H2H/100 + div_df$DivWins/1000 + div_df$LoserWPCT/1000 + runif(4)/10000000
+    div_df$TB_ord <- div_df$WPCT + div_df$H2H/100 + (div_df$TD_mar+100)/100000 + div_df$H2H_pts/100000 + div_df$DivWins/1000000 + div_df$LoserWPCT/1000000 + (div_df$Pts_mar+1000)/1000000000 + runif(4)/1000000000000
     div_df <- div_df[order(-div_df$TB_ord),]
     return(div_df)
   })
