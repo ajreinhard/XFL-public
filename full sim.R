@@ -168,15 +168,16 @@ sim_res <- sapply(1:sim_cnt, function(sm) {
   runner_up <- ifelse(div1_chmp_win==0,div1_chmp,div2_chmp)
   champ <- ifelse(div1_chmp_win==1,div1_chmp,div2_chmp)
   
-  return(c(rate_curr$Rate, rate_curr$Wins, div_chmp, po_loss, runner_up, champ))
+  winners <- as.character(all_gms$TmWinner[which(all_gms$Week==min(reg_games_rem_df$Week))])
 
+  return(c(rate_curr$Rate, rate_curr$Wins, div_chmp, po_loss, runner_up, champ, winners))
 })
 
 
 sim_res_df <- data.frame(t(sim_res), stringsAsFactors = F)
 for (i in 1:16) sim_res_df[,i] <- as.numeric(sim_res_df[,i])
 xfl_tms <- sort(rate_start$Tm)
-names(sim_res_df) <- c(paste0(xfl_tms,'_Rating'),paste0(xfl_tms,'_Wins'),'WEST_REG_CHAMP','EAST_REG_CHAMP','WEST_RU','EAST_RU','XFL_RU','XFL_CHAMP')
+names(sim_res_df) <- c(paste0(xfl_tms,'_Rating'),paste0(xfl_tms,'_Wins'),'WEST_REG_CHAMP','EAST_REG_CHAMP','WEST_RU','EAST_RU','XFL_RU','XFL_CHAMP',paste0('WeeklyWinner',1:4))
 
 div_champ_odds <- table(factor(unlist(sim_res_df[,c('WEST_REG_CHAMP','EAST_REG_CHAMP')]), levels = xfl_tms))/sim_cnt
 po_odds <- table(factor(unlist(sim_res_df[,c('WEST_RU','EAST_RU','XFL_RU','XFL_CHAMP')]), levels = xfl_tms))/sim_cnt

@@ -1,9 +1,9 @@
-Abbr,City,TeamName,Full,HeadCoach,Division,Color1,Color2,Color3,Color4
-LA,Los Angeles,Wildcats,Los Angeles Wildcats,Winston Moss,West,#EB7515,#B31427,NA,NA
-DAL,Dallas,Renegades,Dallas Renegades,Bob Stoops,West,#5F9BCD,#000000,#AC192C,NA
-HOU,Houston,Roughnecks,Houston Roughnecks,June Jones,West,#B31427,#121F47,#FFFFFF,NA
-SEA,Seattle,Dragons,Seattle Dragons,Jim Zorn,West,#E83C17,#015447,#037326,#121F47
-DC,DC,Defenders,DC Defenders,Pep Hamilton,East,#FFFFFF,#B41328,NA,NA
-NY,New York,Guardians,New York Guardians,Kevin Gilbride,East,#919191,#000000,#B41328,NA
-STL,St. Louis,BattleHawks,St. Louis BattleHawks,Jonathan Hayes,East,#25306C,#919191,#FFFFFF,NA
-TB,Tampa Bay,Vipers,Tampa Bay Vipers,Marc Trestman,East,#037326,#FAA91A,#2B411A,NA
+Abbr,City,TeamName,Full,HeadCoach,Division,Color1,Color2,Color3,Color4,Helm
+LA,Los Angeles,Wildcats,Los Angeles Wildcats,Winston Moss,West,#EB7515,#B31427,#000000,NA,#000000
+DAL,Dallas,Renegades,Dallas Renegades,Bob Stoops,West,#5F9BCD,#000000,#AC192C,NA,#5F9BCD
+HOU,Houston,Roughnecks,Houston Roughnecks,June Jones,West,#B31427,#121F47,#FFFFFF,#919191,#919191
+SEA,Seattle,Dragons,Seattle Dragons,Jim Zorn,West,#E83C17,#015447,#037326,#121F47,#FFFFFF
+DC,DC,Defenders,DC Defenders,Pep Hamilton,East,#FFFFFF,#B41328,NA,NA,#B41328
+NY,New York,Guardians,New York Guardians,Kevin Gilbride,East,#919191,#000000,#B41328,NA,#000000
+STL,St. Louis,BattleHawks,St. Louis BattleHawks,Jonathan Hayes,East,#25306C,#919191,#FFFFFF,NA,#25306C
+TB,Tampa Bay,Vipers,Tampa Bay Vipers,Marc Trestman,East,#037326,#FAA91A,#2B411A,#A1D147,#A1D147

@@ -120,7 +120,7 @@ upcom_gms <- games_df[which(games_df$Week==curr_week),]
 upcom_gms <- merge(merge(upcom_gms, teams_df, by.x = 'Away', by.y = 'Abbr', all.x = T), teams_df, by.x = 'Home', by.y = 'Abbr', all.x = T, suffixes = c('Away','Home'))
 upcom_gms <- upcom_gms[order(upcom_gms$GameDateTime),]
 
-upcom_gms$GameHeaderAway <- paste0('#',match(upcom_gms$Away,xfl_rank),' ',upcom_gms$CityAway,ifelse(upcom_gms$HomeSpread<0,paste0('(-',sprintf("%.1f",round(upcom_gms$HomeSpread,1)),')'),''))
+upcom_gms$GameHeaderAway <- paste0('#',match(upcom_gms$Away,xfl_rank),' ',upcom_gms$CityAway,ifelse(upcom_gms$HomeSpread<0,paste0('(',sprintf("%.1f",round(upcom_gms$HomeSpread,1)),')'),''))
 upcom_gms$GameHeaderHome <- paste0('#',match(upcom_gms$Home,xfl_rank),' ',upcom_gms$CityHome,ifelse(upcom_gms$HomeSpread>0,paste0('(-',sprintf("%.1f",round(upcom_gms$HomeSpread,1)),')'),''))
 
 upcom_gms$GameByLine <- ifelse(is.na(upcom_gms$HomeScore), paste0(upcom_gms$weekday,' at ',upcom_gms$Time,'pm on ',upcom_gms$Network), paste0(upcom_gms$Away,' ',upcom_gms$AwayScore,', ',upcom_gms$Home,' ',upcom_gms$HomeScore))
