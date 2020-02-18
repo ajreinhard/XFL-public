@@ -6,7 +6,7 @@ setwd('C:/Users/Owner/Documents/GitHub/XFL/epa')
 
 #####PICK UP EACH GAME
 #####CALCULATE EPA
-for (i in 1:4) {
+for (i in 1:8) {
 URL <- paste0('http://stats.xfl.com/',i)
 webpage <- read_html(URL)
 
@@ -14,9 +14,6 @@ js_scrip <- html_nodes(webpage, xpath = '//script[@type="text/javascript"]')[6] 
 pbp_json <- fromJSON(substring(js_scrip, 21, nchar(js_scrip)-6))
 
 pbp_df <- read.csv(paste0('pre-epa/',i,'.csv'), stringsAsFactors=F)
-
-#numeric_rows <- c(1:5,7,9:10,14:15,18:19,25:26,29)
-#for (i in numeric_rows) pbp_df[,i] <- as.numeric(pbp_df[,i])
 
 pbp_df$OffensePts <- ifelse(pbp_json$homeClubCode==pbp_df$ClubCode, (pbp_df$EndHomeScore - pbp_df$EndAwayScore) - (pbp_df$StartHomeScore - pbp_df$StartAwayScore), (pbp_df$EndAwayScore - pbp_df$EndHomeScore) - (pbp_df$StartAwayScore - pbp_df$StartHomeScore))
 pbp_df$Yardline100 <- abs(ifelse(sapply(strsplit(pbp_df$Yardline,' '), function(x) x[1])==pbp_df$ClubCode,100,0) - sapply(strsplit(pbp_df$Yardline,' '), function(x) as.numeric(x[2])))
@@ -82,11 +79,14 @@ pbp_df$epa[which(!is.na(pbp_df$ep))] <- diff(c(pbp_df$ep[which(!is.na(pbp_df$ep)
 pbp_df$epa <- ifelse(pbp_json$homeClubCode==pbp_df$ClubCode, 1, -1) * pbp_df$epa
 pbp_df$ep <- ifelse(pbp_json$homeClubCode==pbp_df$ClubCode, 1, -1) * pbp_df$ep
 
-pbp_df$epa <- pbp_df$epa + pbp_df$OffensePts
+pbp_df$epa <- ifelse(pbp_df$OffensePts==0,pbp_df$epa, pbp_df$OffensePts - pbp_df$ep)
+#pbp_df$epa <- pbp_df$epa + pbp_df$OffensePts
 
 write.csv(pbp_df, paste0('post-epa/',i,'.csv'), row.names = F)
 }
 
+all_pbp <- do.call(rbind, lapply(dir('epa/post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
+write.csv(all_pbp,'all_pbp.csv', row.names = F)
 
 
 
@@ -147,7 +147,6 @@ aggregate(cbind(RushAttempt,PassAttempt,YardsGained,epa) ~ ClubCode + PlayType, 
 table(pbp_df$PlayType)
 
 
-write.csv(pbp_df,'sample_game.csv', row.names = F)
 
 
 60*15

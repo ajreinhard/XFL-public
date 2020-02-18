@@ -8,7 +8,8 @@ teams_df$UseColor[4] <- teams_df$Color3[4]
 teams_df$UseColor[1] <- teams_df$Color1[1]
 teams_df$UseColor[2] <- teams_df$Color1[2]
 
-all_pbp <- do.call(rbind, lapply(dir('epa/post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
+#all_pbp <- do.call(rbind, lapply(dir('epa/post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
+all_pbp <- read.csv('all_pbp.csv', stringsAsFactors=F)
 all_qb <- names(which(table(all_pbp$PasserName)>20))
 
 all_pbp$PasserRusher <- ifelse(is.na(all_pbp$PasserName), all_pbp$RusherName, all_pbp$PasserName)
