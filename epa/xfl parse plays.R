@@ -85,7 +85,7 @@ pbp_df$epa <- ifelse(pbp_df$OffensePts==0,pbp_df$epa, pbp_df$OffensePts - pbp_df
 write.csv(pbp_df, paste0('post-epa/',i,'.csv'), row.names = F)
 }
 
-all_pbp <- do.call(rbind, lapply(dir('epa/post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
+all_pbp <- do.call(rbind, lapply(dir('post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
 write.csv(all_pbp,'all_pbp.csv', row.names = F)
 
 

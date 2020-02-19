@@ -9,7 +9,7 @@ teams_df$UseColor[1] <- teams_df$Color1[1]
 teams_df$UseColor[2] <- teams_df$Color1[2]
 
 #all_pbp <- do.call(rbind, lapply(dir('epa/post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
-all_pbp <- read.csv('all_pbp.csv', stringsAsFactors=F)
+all_pbp <- read.csv('epa/all_pbp.csv', stringsAsFactors=F)
 all_qb <- names(which(table(all_pbp$PasserName)>20))
 
 all_pbp$PasserRusher <- ifelse(is.na(all_pbp$PasserName), all_pbp$RusherName, all_pbp$PasserName)
@@ -34,10 +34,10 @@ tm_colors <- all_qb_plays$UseColor
 names(tm_colors) <- all_qb_plays$ClubCode
 
 all_qb_plays$image <- paste0('headshots/',all_qb_plays$PasserRusher,'.png')
-all_qb_plays$image_y <- ifelse(all_qb_plays$epa_per_play < 0, 0, all_qb_plays$epa_per_play) + .055
+all_qb_plays$image_y <- ifelse(all_qb_plays$epa_per_play < 0, 0, all_qb_plays$epa_per_play) + .06
 
 all_qb_plays$logos <- paste0('logos/',all_qb_plays$ClubCode,'.png')
-all_qb_plays$logos_y <- all_qb_plays$image_y + .08
+all_qb_plays$logos_y <- all_qb_plays$image_y + .085
 
 
 ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = ClubCode)) + 
@@ -45,7 +45,7 @@ ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = ClubC
 	scale_fill_manual(values=tm_colors) +
 	geom_image(aes(image = image, y = image_y), size = 0.08) +
 	geom_image(aes(image = logos, y = logos_y), size = 0.13) +
-	scale_y_continuous(limits= c(-.4,.4)) +
+	scale_y_continuous(limits= c(-.4,.5)) +
 	labs(title='XFL QB EPA per Play',
        caption = paste0('By Anthony Reinhard\nData from XFL.com | EPA Model from @nflscrapR',
 				'\nIncludes Passes, Sacks, and Runs | Excludes receiver fumbles | Plays <= -4.5 EPA are capped'),
