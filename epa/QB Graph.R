@@ -19,10 +19,9 @@ all_qb_df$epa <- ifelse(all_qb_df$epa < -4.5, -4.5, all_qb_df$epa)
 
 all_qb_plays <- aggregate(cbind('plays'=1,epa) ~ PasserRusher + ClubCode, data = all_qb_df, FUN = sum)
 #Week 1 WR fumbles
-all_qb_plays$epa[match('A.Murray',all_qb_plays$PasserRusher)] <- all_qb_plays$epa[match('A.Murray',all_qb_plays$PasserRusher)] + 5.5111
+all_qb_plays$epa[match('A.Murray',all_qb_plays$PasserRusher)] <- all_qb_plays$epa[match('A.Murray',all_qb_plays$PasserRusher)] + 5.585
 #Week 2 WR fumbles
-all_qb_plays$epa[match('L.Jones',all_qb_plays$PasserRusher)] <- all_qb_plays$epa[match('L.Jones',all_qb_plays$PasserRusher)] + 5.6242
-
+all_qb_plays$epa[match('L.Jones',all_qb_plays$PasserRusher)] <- all_qb_plays$epa[match('L.Jones',all_qb_plays$PasserRusher)] + 5.232
 
 all_qb_plays$epa_per_play <- all_qb_plays$epa/all_qb_plays$plays
 

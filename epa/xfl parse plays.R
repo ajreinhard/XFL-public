@@ -7,6 +7,7 @@ setwd('C:/Users/Owner/Documents/GitHub/XFL/epa')
 #####PICK UP EACH GAME
 #####CALCULATE EPA
 for (i in 1:8) {
+
 URL <- paste0('http://stats.xfl.com/',i)
 webpage <- read_html(URL)
 
@@ -14,6 +15,8 @@ js_scrip <- html_nodes(webpage, xpath = '//script[@type="text/javascript"]')[6] 
 pbp_json <- fromJSON(substring(js_scrip, 21, nchar(js_scrip)-6))
 
 pbp_df <- read.csv(paste0('pre-epa/',i,'.csv'), stringsAsFactors=F)
+
+pbp_df$DefTeam <- ifelse(pbp_df$ClubCode==unique(pbp_df$ClubCode)[2],unique(pbp_df$ClubCode)[1],unique(pbp_df$ClubCode)[2])
 
 pbp_df$OffensePts <- ifelse(pbp_json$homeClubCode==pbp_df$ClubCode, (pbp_df$EndHomeScore - pbp_df$EndAwayScore) - (pbp_df$StartHomeScore - pbp_df$StartAwayScore), (pbp_df$EndAwayScore - pbp_df$EndHomeScore) - (pbp_df$StartAwayScore - pbp_df$StartHomeScore))
 pbp_df$Yardline100 <- abs(ifelse(sapply(strsplit(pbp_df$Yardline,' '), function(x) x[1])==pbp_df$ClubCode,100,0) - sapply(strsplit(pbp_df$Yardline,' '), function(x) as.numeric(x[2])))
@@ -34,6 +37,8 @@ pbp_df$OffensePts[which(pbp_df$OffensePts==-6)] <- -6.5
 
 pbp_df$RushAttempt <- ifelse(grepl('rush',pbp_df$ShortPlayDescription),1,0)
 pbp_df$PassAttempt <- ifelse(grepl('pass',pbp_df$ShortPlayDescription),1,0)
+pbp_df$CompletePass <- ifelse(grepl('incomplete',pbp_df$ShortPlayDescription, ignore.case = T) & pbp_df$PassAttempt==1,0,1)
+
 pbp_df$Interception <- ifelse(grepl('Intercept',pbp_df$ShortPlayDescription),1,0)
 pbp_df$PassAttempt <- pbp_df$PassAttempt + pbp_df$Interception
 pbp_df$Penalty <- ifelse(grepl('Penalty',pbp_df$ShortPlayDescription, ignore.case = T),1,0)
@@ -41,6 +46,8 @@ pbp_df$Sack <- ifelse(grepl('sack',pbp_df$ShortPlayDescription),1,0)
 pbp_df$Scramble <- ifelse(grepl('scramble',pbp_df$PlayDescription),1,0)
 pbp_df$QBSpike <- ifelse(grepl(' spiked ',pbp_df$PlayDescription),1,0)
 pbp_df$QBKneel <- ifelse(grepl(' kneels ',pbp_df$PlayDescription),1,0)
+pbp_df$PAT <- as.numeric(ifelse(grepl('pt attempt',pbp_df$PlayDescription),substr(pbp_df$PlayDescription,1,1),0))
+pbp_df$PATConverted <- ifelse(pbp_df$PAT==0,NA,ifelse(pbp_df$OffensePts==0,0,1))
 
 first_parenth <- sapply(regmatches(pbp_df$PlayDescription, gregexpr("(?<=\\().*?(?=\\))", pbp_df$PlayDescription, perl=T)), function(x) x[1])
 first_parenth[which(substring(pbp_df$PlayDescription,1,1)!='(')] <- NA
@@ -80,7 +87,6 @@ pbp_df$epa <- ifelse(pbp_json$homeClubCode==pbp_df$ClubCode, 1, -1) * pbp_df$epa
 pbp_df$ep <- ifelse(pbp_json$homeClubCode==pbp_df$ClubCode, 1, -1) * pbp_df$ep
 
 pbp_df$epa <- ifelse(pbp_df$OffensePts==0,pbp_df$epa, pbp_df$OffensePts - pbp_df$ep)
-#pbp_df$epa <- pbp_df$epa + pbp_df$OffensePts
 
 write.csv(pbp_df, paste0('post-epa/',i,'.csv'), row.names = F)
 }
