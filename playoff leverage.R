@@ -45,7 +45,7 @@ ggplot(data = team_lev_df, aes(x = Team, ymin = WithLoss,
          ymax = WithWin, lower = WithLoss, 
          upper = WithWin, middle = WithLoss, fill = Team)) +
 	geom_boxplot(stat = 'identity', linetype = 1, size = .1, width = .7) +
-	geom_crossbar(aes(y = Current, ymin = Current, ymax = Current), linetype = 3, size = .1, width = .7) +
+	geom_crossbar(aes(y = Current, ymin = Current, ymax = Current), linetype = 2, size = .1, width = .7) +
 	geom_image(aes(image = Logo, y = Current), size = .10) +
 	geom_text(aes(x = 8.6, y = team_lev_df$Current[8], label = '\nNow'), size = 1.8, color = 'darkblue') +
 	geom_text(aes(x = 8.6, y = team_lev_df$WithWin[8], label = 'With\nWin'), size = 1.8, color = 'darkblue') +
@@ -60,7 +60,7 @@ ggplot(data = team_lev_df, aes(x = Team, ymin = WithLoss,
        y = 'Playoff %') +
 	theme_bw() +
 	theme(
-        text = element_text(color='darkblue'),
+	  text = element_text(family='HP Simplified', color='darkblue'),
         plot.background = element_rect(fill = 'grey95'),
         panel.border = element_rect(color = 'darkblue'),
         axis.ticks = element_line(color = 'darkblue'),
