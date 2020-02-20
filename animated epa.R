@@ -60,14 +60,16 @@ all_epa$bar_len_xmin <- min(all_epa$epa_per_play_off, na.rm = T)
 all_epa$bar_len_ymax <- max(all_epa$epa_per_play_def, na.rm = T) + .05
 all_epa$bar_len_ymin <- max(all_epa$epa_per_play_def, na.rm = T) + .03
 
+all_epa$logos <- ifelse(is.na(all_epa$epa_per_play_off),NA,all_epa$logos)
+
 main_plot <- ggplot(data = all_epa, aes(x = epa_per_play_off, y = epa_per_play_def)) +
-	geom_image(aes(image = logos), size = 0.15) +
+	geom_image(aes(image = logos), size = 0.17) +
 	geom_rect(aes(xmax = bar_len_xmax, xmin = bar_len_xmin, ymax = bar_len_ymax, ymin = bar_len_ymin)) +
 	scale_y_reverse() +
 	labs(
 	y = 'Defensive EPA / Play',
 	x = 'Offensive EPA / Play',
-	caption = 'By Anthony Reinhard | Data from XFL.com | EPA model from @nflscrapeR',
+	caption = 'By Anthony Reinhard  |  Data from XFL.com  |  EPA model from @nflscrapeR',
 	title = 'XFL Team EPA per Play',
 	subtitle = 'Calculated using NFL Expected Points model'
 	) +
@@ -77,15 +79,14 @@ main_plot <- ggplot(data = all_epa, aes(x = epa_per_play_off, y = epa_per_play_d
 	  plot.background = element_rect(fill = 'grey95'),
         panel.border = element_rect(color = 'darkblue'),
         axis.ticks = element_line(color = 'darkblue'),
-        axis.title = element_text(size = 12),
-        axis.text = element_text(size = 10, color = 'darkblue'),
-        plot.title = element_text(size = 16),
-        plot.subtitle = element_text(size = 11),
-        plot.caption = element_text(size = 9)
+        axis.title = element_text(size = 13),
+        axis.text = element_text(size = 11, color = 'darkblue'),
+        plot.title = element_text(size = 19),
+        plot.subtitle = element_text(size = 12),
+        plot.caption = element_text(size = 10)
 	)
 
 
-main_plot + transition_time(GameID)
+main_plot + transition_time(GameID) + enter_grow()
 anim_save('EPA.gif')
 
-?transition_time
