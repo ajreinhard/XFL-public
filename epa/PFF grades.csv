@@ -1,25 +1,47 @@
-Name,Team,Grade,Period,Type
-Cardale Jones,DC Defenders,92.2,Week 1,Passing
-Jordan Ta'amu ,St. Louis BattleHawks,71.6,Week 1,Passing
-Matt McGloin ,New York Guardians,69.5,Week 1,Passing
-Philip Nelson,Dallas Renegades,65.7,Week 1,Passing
-Phillip Walker,Houston Roughnecks,64.7,Week 1,Passing
-Aaron Murray ,Tampa Bay Vipers,49,Week 1,Passing
-Charles Kanoff,Los Angeles Wildcats,46.6,Week 1,Passing
-Brandon Silvers,Seattle Dragons,38.8,Week 1,Passing
-St. Louis BattleHawks,St. Louis BattleHawks,69.6,Week 1,Offense
-Houston Roughnecks,Houston Roughnecks,68.8,Week 1,Offense
-DC Defenders ,DC Defenders,68.8,Week 1,Offense
-New York Guardians,New York Guardians,68.4,Week 1,Offense
-Tampa Bay Vipers,Tampa Bay Vipers,60.9,Week 1,Offense
-Dallas Renegades,Dallas Renegades,60,Week 1,Offense
-Los Angeles Wildcats,Los Angeles Wildcats,57.6,Week 1,Offense
-Seattle Dragons ,Seattle Dragons,53,Week 1,Offense
-Houston Roughnecks,Houston Roughnecks,75.4,Week 1,Defense
-St. Louis BattleHawks ,St. Louis BattleHawks,74.2,Week 1,Defense
-DC Defenders,DC Defenders,72.6,Week 1,Defense
-Los Angeles Wildcats,Los Angeles Wildcats,61.7,Week 1,Defense
-New York Guardians,New York Guardians,61.7,Week 1,Defense
-Seattle Dragons,Seattle Dragons,61.4,Week 1,Defense
-Dallas Renegades,Dallas Renegades,61.2,Week 1,Defense
-Tampa Bay Vipers,Tampa Bay Vipers,59.1,Week 1,Defense
+Name,Team,Grade,Week,Type
+Cardale Jones,DC Defenders,92.2,1,Passing
+Jordan Ta'amu ,St. Louis BattleHawks,71.6,1,Passing
+Matt McGloin ,New York Guardians,69.5,1,Passing
+Philip Nelson,Dallas Renegades,65.7,1,Passing
+Phillip Walker,Houston Roughnecks,64.7,1,Passing
+Aaron Murray ,Tampa Bay Vipers,49,1,Passing
+Charles Kanoff,Los Angeles Wildcats,46.6,1,Passing
+Brandon Silvers,Seattle Dragons,38.8,1,Passing
+St. Louis BattleHawks,St. Louis BattleHawks,69.6,1,Offense
+Houston Roughnecks,Houston Roughnecks,68.8,1,Offense
+DC Defenders ,DC Defenders,68.8,1,Offense
+New York Guardians,New York Guardians,68.4,1,Offense
+Tampa Bay Vipers,Tampa Bay Vipers,60.9,1,Offense
+Dallas Renegades,Dallas Renegades,60,1,Offense
+Los Angeles Wildcats,Los Angeles Wildcats,57.6,1,Offense
+Seattle Dragons ,Seattle Dragons,53,1,Offense
+Houston Roughnecks,Houston Roughnecks,75.4,1,Defense
+St. Louis BattleHawks ,St. Louis BattleHawks,74.2,1,Defense
+DC Defenders,DC Defenders,72.6,1,Defense
+Los Angeles Wildcats,Los Angeles Wildcats,61.7,1,Defense
+New York Guardians,New York Guardians,61.7,1,Defense
+Seattle Dragons,Seattle Dragons,61.4,1,Defense
+Dallas Renegades,Dallas Renegades,61.2,1,Defense
+Tampa Bay Vipers,Tampa Bay Vipers,59.1,1,Defense
+Cardale Jones,DC Defenders,90.6,2,Passing
+Josh Johnson,Los Angeles Wildcats,79.9,2,Passing
+Jordan Ta'amu ,St. Louis BattleHawks,75.9,2,Passing
+Phillip Walker,Houston Roughnecks,68,2,Passing
+Landry Jones,Dallas Renegades,54.2,2,Passing
+Aaron Murray,Tampa Bay Vipers,49,2,Passing
+Matt McGloin,New York Guardians,45.4,2,Passing
+Brandon Silvers,Seattle Dragons,34,2,Passing
+Donald Parham,Dallas Renegades,86.1,2,Offense
+Cameron Artis-Payne,Dallas Renegades,84.1,2,Offense
+Derrick Hayward,DC Defenders,82.8,2,Offense
+De'Quan Hampton,Los Angeles Wildcats,79.7,2,Offense
+Martez Ivey,Tampa Bay Vipers,78.6,2,Offense
+Cardale Jones,DC Defenders,78.6,2,Offense
+Jordan Ta'amu ,St. Louis BattleHawks,78.5,2,Offense
+DeAndre Goolsby,Tampa Bay Vipers,78.2,2,Offense
+Jameer Thurman,DC Defenders,91.4,2,Defense
+Kyle Queiro,Seattle Dragons,90.1,2,Defense
+Antwione Williams,DC Defenders,89.5,2,Defense
+Tarvarus McFadden,Tampa Bay Vipers,89.2,2,Defense
+Beniquez Brown,Houston Roughnecks,89,2,Defense
+Bunmi Rotimi,New York Guardians,88.2,2,Defense

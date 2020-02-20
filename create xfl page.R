@@ -146,9 +146,42 @@ upcoming_games <- paste(paste0('<tr>',
 up_gms_head <- paste0('<h2>Upcoming Games</h2><p>Here are my forecasts for this week\'s XFL games! The length of the bars below reflect win probability and point spread can be found in the parenthesis.</p>')
 upcoming_games <- paste0(up_gms_head,'<table class="games-now"><tbody>',upcoming_games,'</tbody></table>')
 
-header <- '<head><title>XFL Elo Projections</title><link rel="stylesheet" type="text/css" href="ajr-theme.css?v=2"></head>'
 
-last_update <- format(Sys.time(),'%h %d @ %I:%M%p %Z')
+###create champ matrix
+sim_res_df <- read.csv('sim_res.csv', stringsAsFactors=F)
+champ_match <- apply(sim_res_df[,c('XFL_CHAMP','XFL_RU')], 1, function(x) paste(sort(x), collapse = '_'))
+
+east <- c('DC','NY','STL','TB')
+west <- c('DAL','HOU','LA','SEA')
+
+east_chmp_mx <- sapply(east, function(tm) ifelse(grepl(tm, champ_match),1,0))
+west_chmp_mx <- sapply(west, function(tm) ifelse(grepl(tm, champ_match),tm,''))
+west_chmp_vec <- apply(west_chmp_mx, 1, paste, collapse = '')
+
+row.names(east_chmp_mx) <- west_chmp_vec
+
+sim_cnt <- aggregate(east_chmp_mx~west_chmp_vec, FUN = sum)
+sim_cnt$west_chmp_vec <-NULL
+sim_cnt <- sim_cnt/nrow(sim_res_df)
+chmp_color_mx <- sapply(sim_cnt, function(x) paste0('background-color:',rgb(1-((x)/max(sim_cnt)),1,1-((x)/max(sim_cnt)))))
+sim_cnt <- sapply(sim_cnt, percent, accuracy = .1)
+row.names(sim_cnt) <- west
+row.names(sim_cnt) <- paste0('<img src="logos/',west,'.png" height=70em width=auto>')
+colnames(sim_cnt) <- paste0('<img src="logos/',east,'.png" height=70em width=auto>')
+
+chmp_intro <- paste0('<h2>XFL Championship Matchup Odds</h2><p>The matrix below shows the probability of each possible XFL Championship Game matchup. ',
+			'Teams from the Eastern Conference are along the top and teams from the Western Conference are along the left side. ',
+			'The XFL Championship Game will be played in Houston at 3pm ET on Sunday, April 26th.</p>')
+
+chmp_html <- paste0(chmp_intro,htmlTable(sim_cnt, css.class = 'championship-matrix', css.cell = chmp_color_mx))
+chmp_html <- gsub('border-bottom: 1px solid grey','',chmp_html)
+###end champ matrix
+
+
+
+header <- '<head><title>XFL Elo Projections</title><link rel="stylesheet" type="text/css" href="ajr-theme.css?v=3"></head>'
+
+last_update <- format(file.info('sim results.csv')$mtime,'%h %d @ %I:%M%p %Z')
 #'<a href="https://www.bovada.lv/sports/football/xfl/odds-to-win-the-2020-xfl-championship-game-202002081401">XFL champion futures odds on Bovada</a>. ',
 my_sect <- paste0('<body><h1>XFL Elo Projections</h1>',
 		'<p class="sect">Welcome! This page is dedicated XFL elo rankings. The methodology I\'m using is ',
@@ -164,6 +197,6 @@ my_sect <- paste0('<body><h1>XFL Elo Projections</h1>',
 coll_scrpt <- '<script src="collapsible.js"></script>'
 
 primary_html <- htmlTable(primary_df, css.class='primary', css.cell=cell_color, align=align_arg, rnames = F)
-my_html <- paste0(header,paste(c(my_sect,primary_html,upcoming_games,tm_tbls_header,tm_tbls,coll_scrpt), collapse = ''))
+my_html <- paste0(header,paste(c(my_sect,primary_html,chmp_html,upcoming_games,tm_tbls_header,tm_tbls,coll_scrpt), collapse = ''))
 
 write_html(read_html(my_html), 'index.html')

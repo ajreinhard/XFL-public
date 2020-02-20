@@ -13,6 +13,17 @@ h2 {
   font-variant: small-caps;
 }
 
+table {
+	border: 5px solid black;
+	width: 100%;
+}
+
+.championship-matrix {
+	margin-left: auto;
+	margin-right: auto;
+	width: 40%;
+}
+
 .primary td {
   font-family: Arial;
   font-variant: small-caps;
@@ -21,6 +32,13 @@ h2 {
   padding: 5px;
 }
 
+.championship-matrix td {
+  font-family: Arial;
+  font-variant: small-caps;
+  font-size: 2em;
+  font-weight: bold;
+  padding: 5px;
+}
 
 .primary td:nth-child(1) {
 	width: 30%;
@@ -43,6 +61,7 @@ th {
   font-family: Arial;
   font-variant: small-caps;
   font-weight: bold;
+  border-bottom: none;
 }
 
 .primary th {
@@ -85,10 +104,7 @@ th {
   padding: 15px;
 }
 
-table {
-	border: 5px solid black;
-	width: 100%;
-}
+
 
 .team td {
   font-family: Arial;
