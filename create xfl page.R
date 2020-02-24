@@ -66,8 +66,9 @@ games_df$HomeSpread <- (games_df$current_ratingsHome - games_df$current_ratingsA
 games_df$weekday <- format(games_df$GameDateTime, format = "%a")
 
 games_df <- games_df[order(games_df$GameDateTime),]
+games_df$GameID <- 1:43
 
-sim_df$pretty_rate_curr <- sprintf("%.2f",round((sim_df$current_ratings - 1500)/25,2))
+sim_df$pretty_rate_curr <- sprintf("%+.2f",round((sim_df$current_ratings - 1500)/25,2))
 sim_df$arrow <- paste0('<img src="tv-logo/arrow',rnk_chg,'.png" height=26em align="right" vertical-align="middle">')
 sim_df$Record <- paste0(sim_df$wins,'-',sim_df$losses)
 
@@ -98,6 +99,7 @@ tm_tbls <- sapply(xfl_teams, function(tm) {
   tm_games$'Game Info' <- paste0(tm_games$weekday,' ',gsub('/2020','',tm_games$Date),' @',tm_games$Time,'pm ET<br><img src="tv-logo/',tm_games$Network,'.png" height="20em" width=auto')
   tm_games$Score <- paste0(ifelse(tm_games$Home==tm, ifelse(tm_games$HomeScore > tm_games$AwayScore, 'W ','L '),ifelse(tm_games$HomeScore > tm_games$AwayScore, 'L ','W ')), ifelse(tm_games$Home==tm, paste0(tm_games$HomeScore,'-',tm_games$AwayScore), paste0(tm_games$AwayScore,'-',tm_games$HomeScore)))
   tm_games$Score[which(is.na(tm_games$HomeScore))] <- ''
+  tm_games$Score <- ifelse(tm_games$Score=='','',paste0('<a href = "http://stats.xfl.com/',tm_games$GameID,'">',tm_games$Score,'</a>'))
   tm_games$GameOrder <- 1:nrow(tm_games)
   #color_df <- merge(tm_games[,c('Opponent','GameOrder')], teams_df[,c('Abbr','Full','Color1','Color2')], by.x = 'Opponent', by.y = 'Abbr', all.x = T, sort = F)
   #color_df <- color_df[order(color_df$GameOrder),]
@@ -123,7 +125,7 @@ upcom_gms <- upcom_gms[order(upcom_gms$GameDateTime),]
 upcom_gms$GameHeaderAway <- paste0('#',match(upcom_gms$Away,xfl_rank),' ',upcom_gms$CityAway,ifelse(upcom_gms$HomeSpread<0,paste0('(',sprintf("%.1f",round(upcom_gms$HomeSpread,1)),')'),''))
 upcom_gms$GameHeaderHome <- paste0('#',match(upcom_gms$Home,xfl_rank),' ',upcom_gms$CityHome,ifelse(upcom_gms$HomeSpread>0,paste0('(-',sprintf("%.1f",round(upcom_gms$HomeSpread,1)),')'),''))
 
-upcom_gms$GameByLine <- ifelse(is.na(upcom_gms$HomeScore), paste0(upcom_gms$weekday,' at ',upcom_gms$Time,'pm on ',upcom_gms$Network), paste0(upcom_gms$Away,' ',upcom_gms$AwayScore,', ',upcom_gms$Home,' ',upcom_gms$HomeScore))
+upcom_gms$GameByLine <- paste0('<a href="http://stats.xfl.com/',upcom_gms$GameID,'">',ifelse(is.na(upcom_gms$HomeScore), paste0(upcom_gms$weekday,' at ',upcom_gms$Time,'pm on ',upcom_gms$Network), paste0(upcom_gms$Away,' ',upcom_gms$AwayScore,', ',upcom_gms$Home,' ',upcom_gms$HomeScore)),'</a>')
 
 upcoming_games <- paste(paste0('<tr>',
 			'<td colspan=3 class="win-bar">',
@@ -177,9 +179,54 @@ chmp_html <- paste0(chmp_intro,htmlTable(sim_cnt, css.class = 'championship-matr
 chmp_html <- gsub('border-bottom: 1px solid grey','',chmp_html)
 ###end champ matrix
 
+###begin create EPA
+off_epa <- read.csv('epa/offensive_summary.csv', row.names = 1, stringsAsFactors=F)
+def_epa <- read.csv('epa/defensive_summary.csv', row.names = 1, stringsAsFactors=F)
+
+names(off_epa) <- gsub('\\.',' ',gsub('\\.\\.\\.',' / ',names(off_epa)))
+names(def_epa) <- gsub('\\.',' ',gsub('\\.\\.\\.',' / ',names(def_epa)))
+
+off_epa <- rbind(off_epa[order(-off_epa$'Offensive EPA / Play'[1:8]),],off_epa[9,])
+def_epa <- rbind(def_epa[order(def_epa$'Defensive EPA / Play'[1:8]),],def_epa[9,])
+
+for (i in grep('Rat',names(off_epa))) off_epa[,i] <- percent(off_epa[,i], accuracy = 0.1)
+for (i in grep('Rat',names(def_epa))) def_epa[,i] <- percent(def_epa[,i], accuracy = 0.1)
+for (i in grep('EPA',names(off_epa))) off_epa[,i] <- sprintf("%+.2f",round(off_epa[,i], digits = 2))
+for (i in grep('EPA',names(def_epa))) def_epa[,i] <- sprintf("%+.2f",round(def_epa[,i], digits = 2))
+
+off_color <- paste0('background-color:',teams_df$Color1[match(row.names(off_epa),teams_df$Abbr)],';color:',teams_df$Color2[match(row.names(off_epa),teams_df$Abbr)],';')
+off_color[9] <- 'background-color:#012169;color:#FFFFFF;border-top: 5px solid black;'
+def_color <- paste0('background-color:',teams_df$Color1[match(row.names(def_epa),teams_df$Abbr)],';color:',teams_df$Color2[match(row.names(def_epa),teams_df$Abbr)],';')
+def_color[9] <- 'background-color:#012169;color:#FFFFFF;border-top: 5px solid black;'
+
+off_epa$Team <- row.names(off_epa)
+def_epa$Team <- row.names(def_epa)
+off_epa <- off_epa[,c(ncol(off_epa),1:(ncol(off_epa)-1))]
+def_epa <- def_epa[,c(ncol(def_epa),1:(ncol(def_epa)-1))]
+
+off_color_mx <- matrix(off_color,ncol = ncol(off_epa), nrow=nrow(off_epa))
+def_color_mx <- matrix(def_color,ncol = ncol(def_epa), nrow=nrow(def_epa))
+
+off_epa_html <- htmlTable(off_epa, css.cell = off_color_mx, css.class = 'epa', rnames = F, cgroup = c('','All','Dropback','Rush',''), n.cgroup = c(1,2,2,2,1), header = c('Team',rep(c('EPA/Play','Success<br>Rate'),3),'Dropback<br>Ratio'))
+def_epa_html <- htmlTable(def_epa, css.cell = def_color_mx, css.class = 'epa', rnames = F, cgroup = c('','All','Dropback','Rush',''), n.cgroup = c(1,2,2,2,1), header = c('Team',rep(c('EPA/Play','Success<br> Rate'),3),'Dropback<br>Ratio'))
+
+off_epa_header <- '<h3>Offensive Plays</h3><p>Teams with a higher EPA and a higher success rate have better offenses.</p>'
+def_epa_header <- '<h3>Defensive Plays</h3><p>Teams with a lower EPA and a lower success rate have better defenses.</p>'
+
+epa_intro <- paste0('<h2>Expected Points Added and Success Rate</h2><p>The two tables below show some advanced metrics for each team. ',
+			'The first is EPA or Expected Points Added. The general goal of an expected points model is to put the production from each play into the appropriate context. ',
+			'This is especially important in football where context can be burried in the box score. We know that a five yard gain on 3rd & 4 is worth significantly more than a 10 yard gain on 4th & 12 and EPA will tell us that one of those two plays was far more valuable than the other. ',
+			'EPA can be calculated by taking the difference between the number of points a team was expected to score before a play and the number of points a team is expected to score after that play is over. The second metric that I\'ve included is success rate. ',
+			'Success rate is defined as the percentage of plays where a team achieved a positive EPA.</p>',
+			'<p>All of the data below was retrieved via <a href = "https://github.com/keegan-abdoo/xflscrapR">xflscrapR</a>, a tool created by Keegan Abdoo and Caio Brighenti that was created to scrape play-by-play data from <a href="https://xfl.com">xfl.com</a>. ',
+			'The EPA model was created with <a href = "https://github.com/ryurko/nflscrapR">nflscrapR</a>, an NFL web scraper. Since the nflscrapR EPA model is fitted for the NFL, these results should be taken with caution.</p>')
+			
+
+epa_html <- paste0(epa_intro,off_epa_header,off_epa_html,def_epa_header,def_epa_html)
+###end create EPA
 
 
-header <- '<head><title>XFL Elo Projections</title><link rel="stylesheet" type="text/css" href="ajr-theme.css?v=3"></head>'
+header <- '<head><title>XFL Elo Projections</title><link rel="stylesheet" type="text/css" href="ajr-theme.css?v=4"></head>'
 
 last_update <- format(file.info('sim results.csv')$mtime,'%h %d @ %I:%M%p %Z')
 #'<a href="https://www.bovada.lv/sports/football/xfl/odds-to-win-the-2020-xfl-championship-game-202002081401">XFL champion futures odds on Bovada</a>. ',
@@ -197,6 +244,8 @@ my_sect <- paste0('<body><h1>XFL Elo Projections</h1>',
 coll_scrpt <- '<script src="collapsible.js"></script>'
 
 primary_html <- htmlTable(primary_df, css.class='primary', css.cell=cell_color, align=align_arg, rnames = F)
-my_html <- paste0(header,paste(c(my_sect,primary_html,chmp_html,upcoming_games,tm_tbls_header,tm_tbls,coll_scrpt), collapse = ''))
+primary_html <- gsub('border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;','',primary_html)
+
+my_html <- paste0(header,paste(c(my_sect,primary_html,chmp_html,upcoming_games,epa_html,tm_tbls_header,tm_tbls,coll_scrpt), collapse = ''))
 
 write_html(read_html(my_html), 'index.html')
