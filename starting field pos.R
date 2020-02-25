@@ -3,11 +3,10 @@ library(ggimage)
 library(extrafont)
 setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
-pbp_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/epa/all_pbp.csv', stringsAsFactors=F)
-write.csv(pbp_df, 'reg_pbp_2020.csv', row.names = F)
+#pbp_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/epa/all_pbp.csv', stringsAsFactors=F)
+pbp_df <- read.csv('epa/all_pbp.csv', stringsAsFactors=F)
 
 #pbp_df <- do.call(rbind,lapply(1:8, function(x) read.csv(url(paste0('https://github.com/ajreinhard/xfl-public/raw/master/epa/post-epa/',x,'.csv')),stringsAsFactors = F)))
-
 
 teams_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/teams.csv', stringsAsFactors=F)
 teams_df$UseColor <- teams_df$Helm
@@ -39,12 +38,12 @@ summary(drive_begin_df$Yardline100)
 
 ggplot(data = drive_begin_df, aes(x=ClubCode, y=Yardline100)) +
   geom_jitter(aes(color = ClubCode), position=position_jitter(width=0.2), alpha=0.8) + 
-  geom_image(aes(image = TeamLogoLink), size = 0.04, by="height") +
+  geom_image(aes(image = TeamLogoLink), size = 0.06, asp = (16/9)) +
   scale_colour_manual(values=tm_colors) +
   scale_y_reverse(limits= c(100,0)) +
   labs(title='XFL Starting Field Position',
        caption = 'By Anthony Reinhard\nData from XFL.com',
-       subtitle='Through Week 2 of 2020',
+       subtitle='Through Week 3 of 2020',
        y = 'Yards from End Zone to Start Drive') +
   theme_bw() +
   theme(
@@ -61,7 +60,7 @@ ggplot(data = drive_begin_df, aes(x=ClubCode, y=Yardline100)) +
   theme(legend.position = "none"
         ,axis.title.x=element_blank())
 
-ggsave('XFL Field Pos.png', width=5, height=5)
+ggsave('XFL Field Pos.png', width=5 * (16/9), height=5)
 
 #med_fld_pos <- aggregate(Yardline100 ~ ClubCode, data = drive_begin_df, FUN=median)
 
