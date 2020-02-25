@@ -6,7 +6,7 @@ setwd('C:/Users/Owner/Documents/GitHub/XFL/epa')
 
 #####PICK UP EACH GAME
 #####CALCULATE EPA
-for (i in 1:8) {
+for (i in 1:12) {
 
 URL <- paste0('http://stats.xfl.com/',i)
 webpage <- read_html(URL)
@@ -27,6 +27,9 @@ pbp_df$YardsGained <- as.numeric(gsub("([0-9]+).*$", "\\1", pbp_df$ShortPlayDesc
 pbp_df$YardsGained <- ifelse(is.na(pbp_df$YardsGained), 0, pbp_df$YardsGained)
 pbp_df$YardsGained[which(!pbp_df$PlayType %in% c('Pass','Rush','Penalty'))] <- 0
 
+pbp_df$Yardline100[which(pbp_df$PlayType=='Onside Kick off')] <- 68
+pbp_df$Down[which(pbp_df$PlayType=='Onside Kick off')] <- 1
+pbp_df$Distance[which(pbp_df$PlayType=='Onside Kick off')] <- 10
 
 pbp_df$Yardline100[which(pbp_df$PlayType=='Kick off')] <- 68
 pbp_df$Down[which(pbp_df$PlayType=='Kick off')] <- 1
@@ -93,8 +96,6 @@ write.csv(pbp_df, paste0('post-epa/',i,'.csv'), row.names = F)
 
 all_pbp <- do.call(rbind, lapply(dir('post-epa',full=T), function(i) read.csv(i, stringsAsFactors=F)))
 write.csv(all_pbp,'all_pbp.csv', row.names = F)
-
-
 
 
 

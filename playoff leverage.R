@@ -1,6 +1,7 @@
 library(ggplot2)
 library(ggimage)
 library(scales)
+library(extrafont)
 setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
 teams_df <- read.csv('teams.csv', stringsAsFactors=F)
@@ -17,7 +18,6 @@ sim_res <- read.csv('sim_res.csv', stringsAsFactors=F)
 po_res <- data.frame(t(apply(sim_res[,c('WEST_RU','EAST_RU','XFL_RU','XFL_CHAMP')], 1, function(x) ifelse(is.na(match(teams_df$Abbr,x)),0,1))),stringsAsFactors=F)
 names(po_res) <- teams_df$Abbr
 po_res <- cbind(sim_res[,paste0('WeeklyWinner',1:4)],po_res)
-
 
 
 team_games <- lapply(1:4, function(x) {
@@ -46,7 +46,7 @@ ggplot(data = team_lev_df, aes(x = Team, ymin = WithLoss,
          upper = WithWin, middle = WithLoss, fill = Team)) +
 	geom_boxplot(stat = 'identity', linetype = 1, size = .1, width = .7) +
 	geom_crossbar(aes(y = Current, ymin = Current, ymax = Current), linetype = 2, size = .1, width = .7) +
-	geom_image(aes(image = Logo, y = Current), size = .10) +
+	geom_image(aes(image = Logo, y = Current), size = .075, asp = (16/9)) +
 	geom_text(aes(x = 8.6, y = team_lev_df$Current[8], label = '\nNow'), size = 1.8, color = 'darkblue') +
 	geom_text(aes(x = 8.6, y = team_lev_df$WithWin[8], label = 'With\nWin'), size = 1.8, color = 'darkblue') +
 	geom_text(aes(x = 8.6, y = team_lev_df$WithLoss[8], label = 'With\nLoss'), size = 1.8, color = 'darkblue') +
@@ -54,8 +54,8 @@ ggplot(data = team_lev_df, aes(x = Team, ymin = WithLoss,
 	scale_fill_manual(values=tm_colors) +
 	scale_y_continuous(limits= c(0,1), breaks = seq(0,1,.2), labels = percent) +
 	coord_flip() + 
-	labs(title='XFL Week 3 Playoff Leverage',
-       caption = 'By Anthony Reinhard\nModel from statbutler.com/xfl',
+	labs(title='XFL Week 4 Playoff Leverage',
+       caption = 'By Anthony Reinhard | Model from statbutler.com/xfl',
        subtitle='Potential change in probability of making the playoffs with a win or loss this week',
        y = 'Playoff %') +
 	theme_bw() +
@@ -74,4 +74,4 @@ ggplot(data = team_lev_df, aes(x = Team, ymin = WithLoss,
 		,axis.title.y=element_blank()
 	)
 
-ggsave('po leverage.png', width=5, height=5)
+ggsave('po leverage.png', width=5 * (16/9), height=5)

@@ -36,7 +36,7 @@ all_qb_plays$image <- paste0('headshots/',all_qb_plays$PasserRusher,'.png')
 all_qb_plays$image_y <- ifelse(all_qb_plays$epa_per_play < 0, 0, all_qb_plays$epa_per_play) + .09
 
 all_qb_plays$logos <- paste0('logos/',all_qb_plays$ClubCode,'.png')
-all_qb_plays$logos_y <- all_qb_plays$image_y + .12
+all_qb_plays$logos_y <- all_qb_plays$image_y + .13
 
 
 ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = ClubCode)) + 
@@ -46,7 +46,7 @@ ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = ClubC
 	#geom_image(aes(image = image, y = image_y), size = 0.07) +
 	geom_image(aes(image = logos, y = logos_y), size = 0.11, asp = (16/9)) +
 	geom_image(aes(image = image, y = image_y), size = 0.07, asp = (16/9)) +
-	#scale_y_continuous(limits= c(-.3,.6)) +
+	scale_y_continuous(limits= c(-.25,.65)) +
 	labs(title='XFL QB EPA per Play',
        caption = paste0('By Anthony Reinhard\nData from XFL.com | EPA Model from @nflscrapR',
 				'\nIncludes Passes, Sacks, and Runs | Excludes receiver fumbles | Plays <= -4.5 EPA are capped'),
@@ -54,7 +54,7 @@ ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = ClubC
        y = 'EPA / Play') +
 	theme_bw() +
 	theme(
-        text = element_text(color='darkblue'),
+	  text = element_text(family='HP Simplified', color='darkblue'),
         plot.background = element_rect(fill = 'grey95'),
         panel.border = element_rect(color = 'darkblue'),
         axis.ticks = element_line(color = 'darkblue'),
@@ -66,7 +66,7 @@ ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = ClubC
 	) + 
 	theme(legend.position = "none"
 		,axis.title.x=element_blank()
-		,axis.text.x=element_text(angle = -25, size = 8)
+		,axis.text.x=element_text(angle = -25, size = 10)
 		,axis.ticks.x=element_blank())
 
 

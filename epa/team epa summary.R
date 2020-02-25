@@ -2,9 +2,20 @@ setwd('C:/Users/Owner/Documents/GitHub/XFL/epa')
 
 pbp2 <- read.csv('C:/Users/Owner/Documents/Other XFL/xflscrapR.csv',stringsAsFactors=F)
 
+#pbp2 <- read.csv('all_pbp.csv', stringsAsFactors=F)
+#pbp2$play_type <- pbp2$PlayType
+#pbp2$qb_spike <- pbp2$QBSpike
+#pbp2$qb_kneel <- pbp2$QBKneel
+#pbp2$defteam <- pbp2$DefTeam
+#pbp2$posteam <- pbp2$ClubCode
+#pbp2$play_type[which(pbp2$play_type=='Rush')] <- 'run'
+#pbp2$play_type[which(pbp2$play_type=='Pass')] <- 'dropback'
+#pbp2$play_type[which(pbp2$Scramble==1)] <- 'dropback'
+#pbp2 <- pbp2[which(pbp2$GameID<=8),]
+
 pbp2$success <- ifelse(pbp2$epa>0,1,0)
-pbp2$passerrusher <- ifelse(is.na(pbp2$passer_player_name),pbp2$rusher_player_name,pbp2$passer_player_name)
-pbp2$epa2 <- ifelse(pbp2$epa < -4.5,-4.5,pbp2$epa)
+#pbp2$passerrusher <- ifelse(is.na(pbp2$passer_player_name),pbp2$rusher_player_name,pbp2$passer_player_name)
+#pbp2$epa2 <- ifelse(pbp2$epa < -4.5,-4.5,pbp2$epa)
 
 #aggregate(epa ~ posteam,data = pbp2, FUN = mean, subset = (play_type=='dropback' | play_type=='run') & (is.na(qb_kneel) |  qb_kneel==0) & (is.na(qb_spike) |  qb_spike==0))
 #aggregate(epa2 ~ passerrusher,data = pbp2, FUN = mean, subset = (play_type=='dropback' | play_type=='run') & (is.na(qb_kneel) |  qb_kneel==0) & (is.na(qb_spike) |  qb_spike==0))
@@ -43,3 +54,4 @@ write.csv(off_epa[,c('posteam','Offensive EPA / Play','Offensive Success Rate','
 write.csv(def_epa[,c('defteam','Defensive EPA / Play','Defensive Success Rate','Pass EPA / Play','Pass Success Rate','Rush EPA / Play','Rush Success Rate','Pass Ratio')], 'defensive_summary.csv', row.names = F)
 
 #cbind(off_epa$posteam,off_epa$'Offensive EPA / Play',def_epa$'Defensive EPA / Play')
+
