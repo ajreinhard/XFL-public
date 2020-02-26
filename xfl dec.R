@@ -1,9 +1,9 @@
 library(ggplot2)
 library(ggimage)
 library(extrafont)
-setwd('C:/Users/rei1740/Desktop/Anthony/XFL')
+setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
-pbp_df <- read.csv('reg_pbp_2020.csv', stringsAsFactors=F)
+pbp_df <- read.csv('epa/all_pbp.csv', stringsAsFactors=F)
 league_adv_df <- read.csv('4thDown.csv', stringsAsFactors=F)
 
 
@@ -62,23 +62,26 @@ all_fourth_df$DistGrpFct <- factor(all_fourth_df$DistGrp, levels = c(1:15,'16+')
 #league_adv_df$SuggestedFct <- factor(league_adv_df$Suggested, levels = c('Punt','Go','Field Goal'))
 
 my_colors <- c('Go'='green','Field Goal'='orange','Punt'='pink')
+my_fake_lines <- c('Go'=0,'Field Goal'=0,'Punt'=0)
+
 
 
 ggplot() +
-  geom_tile(data = guide_heatmap, aes(x = DistGrpFct, y = Yardline100, fill = Suggested)) +
+  geom_tile(data = guide_heatmap, aes(x = DistGrpFct, y = Yardline100, fill = Suggested), show.legend = T) +
   geom_hline(yintercept=seq(10, 90, by=10), color = 'grey50', size = .2, linetype = 2) +
-  geom_jitter(data = all_fourth_df, aes(x = DistGrpFct, y = Yardline100, fill = Decision), shape = 21, color = 'darkblue', position=position_jitter(width=0.4), show.legend = F, stroke = .6) + 
-  scale_y_reverse(limits = c(100,0), expand = c(0, 0), breaks = seq(0, 100, by=10)) +  
-  scale_fill_manual(values=my_colors) +
+  geom_jitter(data = all_fourth_df, aes(x = DistGrpFct, y = Yardline100, fill = Decision), shape = 21, color = 'darkblue', position=position_jitter(width=0.4), show.legend = T, stroke = .6) + 
+  scale_y_reverse(limits = c(100,0), expand = c(0, 0), breaks = seq(0, 100, by=10)) + 
+  scale_fill_manual(name = 'Play Type',values=my_colors) +
+  #scale_linetype_manual(name = 'Play Type2',values=my_fake_lines, guide = guide_legend(override.aes = list(fill = my_colors))) + 
   labs(title='XFL 4th Down Decision Making',
-       caption = 'By Anthony Reinhard\nData from XFL.com',
-       subtitle='Through Week 2 of 2020',
+       caption = 'By Anthony Reinhard | Data from XFL.com',
+       subtitle='Through Week 3 of 2020',
        y = 'Yards from End Zone',
        x = 'Yards to go on 4th Down',
        fill = 'Play Type') +
   theme_bw() +
   theme(
-    text = element_text(family='Bahnschrift', color='darkblue'),
+    text = element_text(family='HP Simplified', color='darkblue'),
     plot.background = element_rect(fill = 'grey95'),
     panel.border = element_rect(color = 'darkblue'),
     axis.ticks = element_line(color = 'darkblue'),
@@ -94,4 +97,3 @@ ggplot() +
   )
 
 ggsave('XFL Go For it.png', width=5 * (16/9), height=5, dpi = 1000)
-
