@@ -30,7 +30,7 @@ plot_df$Team <- factor(plot_df$Team,c('DC','NY','STL','TB','DAL','HOU','LA','SEA
 
 ggplot(plot_df, aes(x=Wins, y=Freq, fill = Team, color = Team, label = text)) + 
   geom_col(width = 1) +
-  geom_text(color = 'darkblue', size = 2, nudge_y = .015, family='Bahnschrift') +
+  geom_text(color = 'darkblue', size = 2, nudge_y = .015, family='HP Simplified') +
   facet_wrap( ~ Team, nrow=4, scales='free_x', shrink= F) +
   labs(title='XFL Win Distribution',
        caption = 'By Anthony Reinhard  |  Model from statbutler.com/xfl',
@@ -61,7 +61,7 @@ ggplot(plot_df, aes(x=Wins, y=Freq, fill = Team, color = Team, label = text)) +
   )
 
 
-ggsave(paste0('win_plot_pre.png'), dpi=1000, height = 5 * (16/9), width = 5)
+ggsave(paste0('win_plot_pre.png'), height = 5 * (16/9), width = 5, dpi = 1000)
 
 orig_plot <- readPNG('win_plot_pre.png')
 png('win_plot_post.png',width = 5, height = 5 * (16/9), units = 'in', res = 500)
@@ -83,7 +83,7 @@ rasterImage(orig_plot, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
 #row_mid <- (5-ceiling(i/2)) * .475 - 0.92
 
 for (i in 1:8) {
-  tm_logo <-  readPNG(paste0('better text/',levels(plot_df$Team)[i],'.png'))
+  tm_logo <-  readPNG(paste0('team-text/',levels(plot_df$Team)[i],'.png'))
   col_mid <- ifelse(i %% 2==1, 0.845, 1.235)
   row_mid <- (5-ceiling(i/2)) * .49 - 1.055
   width_split <- ((ncol(tm_logo)/nrow(tm_logo)) * .04)/2.8
