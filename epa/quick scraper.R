@@ -1,5 +1,10 @@
 library(rvest)
 library(RJSONIO)
+library(glue)
+library(tidyverse)
+library(lubridate)
+
+source('C:/Users/Owner/Documents/Other XFL/helpers.R')
 
 setwd('C:/Users/Owner/Documents/GitHub/XFL/epa')
 
@@ -24,12 +29,13 @@ pbp_df$StartAwayScore <- as.numeric(pbp_df$StartAwayScore)
 pbp_df$StartHomeScore <- as.numeric(pbp_df$StartHomeScore)
 pbp_df$EndAwayScore <- as.numeric(pbp_df$EndAwayScore)
 pbp_df$EndHomeScore <- as.numeric(pbp_df$EndHomeScore)
+pbp_df$PlayDescription <- gsub(" no gain ", " 0 yards ", pbp_df$PlayDescription)
 
 keep_cols <- c('GameID','PlayID','Quarter','StartTime','ClubCode',
 			'PlayDescription','DrivePlays','DriveNetYards',
 			'home_team','away_team','Down','Distance','yardline_50', 'side_of_field',
 			'PlayType','StartHomeScore','StartAwayScore','EndHomeScore',
-			'EndAwayScore','ShortPlayDescription','playScoringTeamId')  
+			'EndAwayScore','ShortPlayDescription','playScoringTeamId','DriveID')  
 
 return(pbp_df[,paste0(keep_cols)])
 })
@@ -45,19 +51,22 @@ col_names <- c("Game", "play_id", "qtr", "time", "posteam", "desc",
 			"DrivePlays", "DriveYards", "home_team", "away_team",
 			"down","ydstogo","yardline_50", "side_of_field",
 			"PlayType","total_home_score","total_away_score","EndHomeScore",
-			"EndAwayScore","ShortPlayDescription","td_team")  
+			"EndAwayScore","ShortPlayDescription","td_team","drive_id")  
 names(df) <- col_names
 
   pbp1 <- df %>%
     select(col_names) %>%
     mutate(# Fix Game 7 issue where one drive has the wrong Offense
-           # posteam = if_else(Game == 7 & qtr == 4 & between(play_id, 655, 690), "DAL", posteam),
+           posteam = if_else(drive_id==6478, "DAL", posteam),
            # Add Defensive Team
            defteam = if_else(posteam == home_team, home_team, away_team),
            posteam_type = if_else(posteam==home_team, "home", "away"),
            defteam = if_else(posteam == home_team, away_team, home_team),
            week = ceiling(Game/4),
            # Score Columns
+           # Sometimes end play score is zero to zero
+           EndHomeScore = if_else(EndHomeScore <  total_home_score, total_home_score, EndHomeScore),
+           EndAwayScore = if_else(EndAwayScore <  total_away_score, total_away_score, EndAwayScore),
            posteam_score = if_else(posteam == home_team, total_home_score, total_away_score),
            defteam_score = if_else(posteam == away_team, total_home_score, total_away_score),
            posteam_score_post = if_else(posteam == home_team, EndHomeScore, EndAwayScore),
@@ -65,6 +74,9 @@ names(df) <- col_names
            score_differential = posteam_score - defteam_score,
            score_differential_post = posteam_score_post - defteam_score_post,
            pos_score_change = score_differential_post - score_differential,
+           pos_score_change = if_else(pos_score_change == 6, 6.5, pos_score_change),
+           pos_score_change = if_else(pos_score_change == -6, -6.5, pos_score_change),
+
            # Create GameIDs in NFL's GSIS format
            game_id = if_else(Game%%4 %in% c(1, 2),
                             str_remove_all(glue("{ymd(20200208) + (week-1)*7}"), "-"),
@@ -74,7 +86,7 @@ names(df) <- col_names
                             as.character(glue("{game_id}01"))),
            game_id = as.numeric(game_id),
            # GameTime
-           quarter_seconds_remaining = as.numeric(str_extract(as.character(time), "(?<=:)[0-9]{2}")) * 60 +
+           quarter_seconds_remaining = as.numeric(str_extract(as.character(time), "[0-9]{2}")) * 60 +
              as.numeric(str_extract(as.character(time), "[0-9]{2}$")),
            half_seconds_remaining = if_else(qtr %in% c("2","4"), quarter_seconds_remaining, quarter_seconds_remaining + 900),
            game_seconds_remaining = quarter_seconds_remaining + ((4 - as.numeric(qtr)) * 900),
@@ -166,6 +178,10 @@ names(df) <- col_names
                                                if_else(str_detect(desc, " successful"), 1, 0)),
            # Is this a penalty?
            penalty = if_else(str_detect(desc, "PENALTY") | str_detect(desc, "penalty"),1,0),
+
+           # Is this a kickoff?
+           ydstogo = na_if(ydstogo, 0),
+
            # Fix missing down, distance, yardline, and goal to go for penalties
            down = case_when(penalty == 1 & lag(first_down) == 1 ~ "1",
                             penalty == 1 & lag(first_down) != 1 & lag(down) != "4" ~ as.character(as.numeric(lag(down,1)) + 1), # need better fix to avoid 5th down
@@ -219,8 +235,51 @@ names(df) <- col_names
   return(pbp1)
 }
 
+add_nflscrapR_epa <- function(df){
+  library(nflscrapR)
+  cat(glue("WARNING: this relies on the nflscrapR model built exclusively on NFL data, not XFL data. When using these \\
+            numbers, keep in mind that it will fail to capture differences between the two leagues. This should only be \\
+            used until a XFL-specific EPA model is available."))
+  df_ep <- nflscrapR::calculate_expected_points(df, "half_seconds_remaining", "yardline_100", "down", "ydstogo", "goal_to_go",
+                                                td_value = 6.5) %>%
+    mutate(epa = case_when(pos_score_change != 0 ~ pos_score_change - ep,
+                           TRUE ~ if_else(posteam == lead(posteam), lead(ep) - ep, -lead(ep) - ep)
+                  )
+           )
+  return(df_ep)
+}
 
 raw_pbp_df <- retrive_games(1:12)
 clean_pbp <- clean_data(raw_pbp_df)
+pbp_epa <- add_nflscrapR_epa(clean_pbp)
 
-write.csv(clean_pbp, 'scraped PBP.csv', row.names = F)
+write.csv(pbp_epa, 'scraped PBP.csv', row.names = F)
+
+
+
+
+pbp_epa[which(pbp_epa$passer_player_name=='L.Jones'),]
+
+str_extract(as.character(raw_pbp_df$StartTime), "[0-9]{2}")
+
+quarter_seconds_remaining = as.numeric(str_extract(as.character(time), "(?<=:)[0-9]{2}")) * 60 +
+as.numeric(str_extract(as.character(raw_pbp_df$StartTime), "[0-9]{2}$")),
+
+
+str(raw_pbp_df)
+
+
+
+clean_pbp$down[which(clean_pbp$play_type=='kickoff')] <- NA
+clean_pbp$ydstogo[which(clean_pbp$play_type=='kickoff')] <- NA
+
+df <- clean_pbp
+str(clean_pbp)
+
+df$
+calculate_expected_points(df[1:4,], "half_seconds_remaining", "yardline_100", "down", "ydstogo", "goal_to_go",td_value = 6.5)
+
+
+
+
+

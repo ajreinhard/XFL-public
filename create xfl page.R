@@ -194,6 +194,9 @@ for (i in grep('Rat',names(def_epa))) def_epa[,i] <- percent(def_epa[,i], accura
 for (i in grep('EPA',names(off_epa))) off_epa[,i] <- sprintf("%+.2f",round(off_epa[,i], digits = 2))
 for (i in grep('EPA',names(def_epa))) def_epa[,i] <- sprintf("%+.2f",round(def_epa[,i], digits = 2))
 
+for (i in grep('EPA',names(off_epa))) off_epa[,i] <- ifelse(off_epa[,i]=='-0.00' | off_epa[,i]=='+0.00','0.00',off_epa[,i])
+for (i in grep('EPA',names(def_epa))) def_epa[,i] <- ifelse(def_epa[,i]=='-0.00' | def_epa[,i]=='+0.00','0.00',def_epa[,i])
+
 off_color <- paste0('background-color:',teams_df$Color1[match(row.names(off_epa),teams_df$Abbr)],';color:',teams_df$Color2[match(row.names(off_epa),teams_df$Abbr)],';')
 off_color[9] <- 'background-color:#012169;color:#FFFFFF;border-top: 5px solid black;'
 def_color <- paste0('background-color:',teams_df$Color1[match(row.names(def_epa),teams_df$Abbr)],';color:',teams_df$Color2[match(row.names(def_epa),teams_df$Abbr)],';')
