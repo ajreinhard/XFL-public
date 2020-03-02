@@ -4,7 +4,8 @@ library(extrafont)
 library(png)
 setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
-sim_res_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/sim_res.csv', stringsAsFactors=F)
+sim_res_df <- read.csv('sim_res.csv', stringsAsFactors=F)
+#sim_res_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/sim_res.csv', stringsAsFactors=F)
 teams_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/teams.csv', stringsAsFactors=F)
 
 teams_df$Color2[4] <- teams_df$Color3[4]
@@ -34,10 +35,10 @@ ggplot(plot_df, aes(x=Wins, y=Freq, fill = Team, color = Team, label = text)) +
   facet_wrap( ~ Team, nrow=4, scales='free_x', shrink= F) +
   labs(title='XFL Win Distribution',
        caption = 'By Anthony Reinhard  |  Model from statbutler.com/xfl',
-       subtitle='Through Week 3 of 2020',
+       subtitle='Through Week 4 of 2020',
        y = 'Frequency',
        x = 'Win Total') +
-  scale_y_continuous(labels = percent, limits = c(0,.3)) +
+  scale_y_continuous(labels = percent, limits = c(0,.35)) +
   scale_x_continuous(breaks = 0:10) +
   scale_fill_manual(values=bar_fill) +
   scale_color_manual(values=line_fill) +
@@ -61,7 +62,7 @@ ggplot(plot_df, aes(x=Wins, y=Freq, fill = Team, color = Team, label = text)) +
   )
 
 
-ggsave(paste0('win_plot_pre.png'), height = 5 * (16/9), width = 5, dpi = 1000)
+ggsave(paste0('win_plot_pre.png'), height = 5 * (16/9), width = 5, dpi = 500)
 
 orig_plot <- readPNG('win_plot_pre.png')
 png('win_plot_post.png',width = 5, height = 5 * (16/9), units = 'in', res = 500)
