@@ -56,8 +56,9 @@ names(df) <- col_names
 
   pbp1 <- df %>%
     select(col_names) %>%
-    mutate(# Fix Game 7 issue where one drive has the wrong Offense
+    mutate(# Fix Game 7 & 16 issue where one drive has the wrong Offense
            posteam = if_else(drive_id==6478, "DAL", posteam),
+           posteam = if_else(drive_id==11688, "TB", posteam),
            # Add Defensive Team
            defteam = if_else(posteam == home_team, home_team, away_team),
            posteam_type = if_else(posteam==home_team, "home", "away"),

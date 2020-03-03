@@ -4,6 +4,8 @@ library(scales)
 
 setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
+epa_week_of <- 4
+
 sim_df <- read.csv('sim results.csv', stringsAsFactors = F, row.names = 1)
 xfl_teams <- row.names(sim_df)
 games_df <- read.csv('sched.csv', stringsAsFactors = F)
@@ -216,13 +218,14 @@ def_epa_html <- htmlTable(def_epa, css.cell = def_color_mx, css.class = 'epa', r
 off_epa_header <- '<h3>Offensive Plays</h3><p>Teams with a higher EPA and a higher success rate have better offenses.</p>'
 def_epa_header <- '<h3>Defensive Plays</h3><p>Teams with a lower EPA and a lower success rate have better defenses.</p>'
 
+epa_last_upd <- paste0('<p><b>EPA stats are upadated through Week ',epa_week_of,'</b></p>')
 epa_intro <- paste0('<h2>Expected Points Added and Success Rate</h2><p>The two tables below show some advanced metrics for each team. ',
 			'The first is EPA or Expected Points Added. The general goal of an expected points model is to put the production from each play into the appropriate context. ',
 			'This is especially important in football where context can be burried in the box score. We know that a five yard gain on 3rd & 4 is worth significantly more than a 10 yard gain on 4th & 12 and EPA will tell us that one of those two plays was far more valuable than the other. ',
 			'EPA can be calculated by taking the difference between the number of points a team was expected to score before a play and the number of points a team is expected to score after that play is over. The second metric that I\'ve included is success rate. ',
 			'Success rate is defined as the percentage of plays where a team achieved a positive EPA.</p>',
 			'<p>All of the data below was retrieved via <a href = "https://github.com/keegan-abdoo/xflscrapR">xflscrapR</a>, a tool created by Keegan Abdoo and Caio Brighenti that was created to scrape play-by-play data from <a href="https://xfl.com">xfl.com</a>. ',
-			'The EPA model was created with <a href = "https://github.com/ryurko/nflscrapR">nflscrapR</a>, an NFL web scraper. Since the nflscrapR EPA model is fitted for the NFL, these results should be taken with caution.</p>')
+			'The EPA model was created with <a href = "https://github.com/ryurko/nflscrapR">nflscrapR</a>, an NFL web scraper. Since the nflscrapR EPA model is fitted for the NFL, these results should be taken with caution.</p>',epa_last_upd)
 			
 
 epa_html <- paste0(epa_intro,off_epa_header,off_epa_html,def_epa_header,def_epa_html)
