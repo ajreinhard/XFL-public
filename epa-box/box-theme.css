@@ -1,0 +1,20 @@
+.sub {
+	width: 100%;
+}
+
+.master td {
+	vertical-align: top;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.sub {
+	width: 100%;
+}
+
+.sub tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
