@@ -40,6 +40,12 @@ table {
 	float: left;
 }
 
+.score {
+	text-align: left;
+	width: 40%;
+
+}
+
 .big-play {
 	width: 100%;
 }

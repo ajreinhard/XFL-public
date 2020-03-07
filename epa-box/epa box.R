@@ -12,16 +12,15 @@ library(tidyverse)
 library(lubridate)
 source('C:/Users/Owner/Documents/Other XFL/helpers.R')
 
+teams_df <- read.csv('teams.csv', stringsAsFactors=F)
+
 #pbp_df <- read.csv('epa/scraped PBP.csv', stringsAsFactors=F)
-#teams_df <- read.csv('teams.csv', stringsAsFactors=F)
-
-
 #pbp_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/epa/scraped PBP.csv', stringsAsFactors=F)
 #pass_mean <- mean(pbp_df$epa[which(pbp_df$play_type == 'pass')], na.rm = T)
 #pass_sd <- sd(pbp_df$epa[which(pbp_df$play_type == 'pass')], na.rm = T)
 #pnorm(8.11,pass_mean * 32, pass_sd * sqrt(32))
 
-game_id <- 10
+game_id <- 5
 #game_df <- pbp_df[which(pbp_df$Game==game_id),]
 
 retrive_games <- function(game_ids) {
@@ -274,7 +273,7 @@ game_df <- add_nflscrapR_epa(clean_pbp)
 URL <- paste0('http://stats.xfl.com/',game_id)
 webpage <- read_html(URL)
 js_scrip_agg <- html_nodes(webpage, xpath = '//script[@type="text/javascript"]')[3] %>% html_text()
-agg_json <- fromJSON(substring(js_scrip, 21, nchar(js_scrip)-6))
+agg_json <- fromJSON(substring(js_scrip_agg, 21, nchar(js_scrip_agg)-6))
 
 away_pts <- agg_json$awayStats$stats$PointsFor
 home_pts <- agg_json$homeStats$stats$PointsFor
@@ -285,6 +284,7 @@ score <- htmlTable(data.frame(c(away_team,home_team),c(away_pts,home_pts)),rname
 score <- gsub("style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;'","",score)
 score <- gsub("style='border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;'","",score)
 score <- gsub("style='border-bottom: 2px solid grey; text-align: center;'","",score)
+score <- gsub("style='text-align: center;'","",score)
 
 total_sec_left <- mins_to_seconds(agg_json$homeStats$stats$TimeOfPossession) + mins_to_seconds(agg_json$awayStats$stats$TimeOfPossession)
 curr_qtr <- ((total_sec_left-(total_sec_left %% 900))/900) + 1
