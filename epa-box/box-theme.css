@@ -1,9 +1,9 @@
-.sub {
-	width: 100%;
-}
+@import url(https://fonts.googleapis.com/css?family=Roboto+Condensed);
 
-.master td {
-	vertical-align: top;
+body {
+  background: #f2f2f2;
+  font-family: 'Roboto Condensed', sans-serif;
+  color: #00008b;
 }
 
 table {
@@ -11,10 +11,60 @@ table {
 	width: 100%;
 }
 
+.master td {
+	vertical-align: top;
+	padding-left:10px;
+	padding-right:10px;
+}
+
 .sub {
 	width: 100%;
 }
 
-.sub tr:nth-child(even) {
-  background-color: #f2f2f2;
+.big-play td {
+	padding-left:5px;
+	padding-right:5px;
 }
+
+.sub tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.cummOff {
+	width: 60%;
+	float: right;
+}
+
+.team-cont {
+	width: 40%;
+	float: left;
+}
+
+.big-play {
+	width: 100%;
+}
+
+.big-play td {
+	padding-left:20px;
+	padding-right:20px;
+	padding-top:5px;
+	padding-bottom:5px;
+}
+
+.big-play tr:nth-child(even) {
+	background-color: #ffffff;
+}
+
+.big-play td:nth-child(2) {
+	white-space: nowrap;
+}
+
+.big-play td:nth-child(3) {
+	white-space: nowrap;
+}
+
+.big-play td:nth-child(6) {
+	white-space: nowrap;
+}
+
+
