@@ -20,7 +20,7 @@ teams_df <- read.csv('teams.csv', stringsAsFactors=F)
 #pass_sd <- sd(pbp_df$epa[which(pbp_df$play_type == 'pass')], na.rm = T)
 #pnorm(8.11,pass_mean * 32, pass_sd * sqrt(32))
 
-game_id <- 5
+game_id <- 17
 #game_df <- pbp_df[which(pbp_df$Game==game_id),]
 
 retrive_games <- function(game_ids) {
@@ -305,12 +305,14 @@ game_now_html <- paste0(time_frmt, '<br>', score)
 game_df$cum_home_epa <- cumsum(ifelse(game_df$posteam==game_df$home_team & game_df$play_type!='punt' & game_df$play_type!='field_goal' & !is.na(game_df$epa), game_df$epa, 0))
 game_df$cum_away_epa <- cumsum(ifelse(game_df$posteam!=game_df$home_team & game_df$play_type!='punt' & game_df$play_type!='field_goal' & !is.na(game_df$epa), game_df$epa, 0))
 
-game_df$big_play <- ifelse(abs(game_df$epa)>=2.5 & !is.na(game_df$epa),1,0)
-game_df$Graph <- ifelse(game_df$big_play==1,cumsum(game_df$big_play),NA)
-game_df$big_play_y_home <- ifelse(game_df$big_play==1 & game_df$posteam==game_df$home_team,game_df$cum_home_epa,NA)
-game_df$big_play_y_away <- ifelse(game_df$big_play==1 & game_df$posteam!=game_df$home_team,game_df$cum_away_epa,NA)
+big_play_lim <- ifelse(rev(sort(abs(game_df$epa)))[4]<2.5,rev(sort(abs(game_df$epa)))[4],ifelse(rev(sort(abs(game_df$epa)))[9]>2.5,rev(sort(abs(game_df$epa)))[9],2.5))
 
-tm_col <- c(teams_df$Color1[match(game_df$away_team[1],teams_df$Abbr)],teams_df$Color1[match(game_df$home_team[1],teams_df$Abbr)])
+game_df$big_play <- ifelse(abs(game_df$epa)>=big_play_lim & !is.na(game_df$epa),1,0)
+game_df$Graph <- ifelse(game_df$big_play==1,cumsum(game_df$big_play),NA)
+game_df$big_play_y_home <- as.numeric(ifelse(game_df$big_play==1 & game_df$posteam==game_df$home_team,game_df$cum_home_epa,NA))
+game_df$big_play_y_away <- as.numeric(ifelse(game_df$big_play==1 & game_df$posteam!=game_df$home_team,game_df$cum_away_epa,NA))
+
+tm_col <- c(teams_df$Color2[match(game_df$away_team[1],teams_df$Abbr)],teams_df$Color1[match(game_df$home_team[1],teams_df$Abbr)])
 names(tm_col) <- c(game_df$away_team[1],game_df$home_team[1])
 
 ggplot(data = game_df, aes(x = game_seconds_remaining)) +
@@ -367,6 +369,9 @@ big_play_html <- htmlTable(game_df[which(game_df$big_play==1),c('Graph','Situati
 hm_tm <- ifelse(game_df$posteam_type[1]=='home',game_df$posteam,game_df$defteam)
 
 for (colnm in which(sapply(game_df, typeof)=='integer')) game_df[which(is.na(game_df[,colnm])),colnm] <- 0
+for (colnm in which(sapply(game_df, typeof)=='numeric')) game_df[which(is.na(game_df[,colnm])),colnm] <- 0
+for (colnm in which(sapply(game_df, typeof)=='double')) game_df[which(is.na(game_df[,colnm])),colnm] <- 0
+
 
 game_df$penalty <- ifelse(grepl('penalty',game_df$ShortPlayDescription) | game_df$ShortPlayDescription=='', 1, 0)
 game_df$pass_yards_gained <- ifelse(game_df$pass_attempt==1, game_df$yards_gained, 0)
@@ -469,7 +474,7 @@ run_away <- htmlTable(rush_epa_box[which(rush_epa_box$posteam!=hm_tm),c('Player'
 run_home <- htmlTable(rush_epa_box[which(rush_epa_box$posteam==hm_tm),c('Player','Runs','RunYrds','RunTD','Succ%','EPA/Ply')],rnames=F,css.class = 'sub')
 
 master_mx <- matrix(c(pass_away,rec_away,run_away,pass_home,rec_home,run_home),3)
-colnames(master_mx) <- c('Away','Home')
+colnames(master_mx) <- c(away_team,home_team)
 master_tbl <- htmlTable(master_mx,rnames=F,css.class = 'master')
 
 
@@ -480,5 +485,8 @@ game_container <- paste0('<div class="team-cont">',game_now_html,full_team_epa_h
 my_html <- paste0(css_link,game_container,cummOff_html,big_play_html,master_tbl)
 
 write_html(read_html(my_html), 'epa-box/index.html')
-webshot('epa-box/index.html', 'epa-box/game.png', useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X)", vwidth=1600, vheight=900)
+webshot('epa-box/index.html', 'epa-box/game.png', useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X)", vwidth=1300, vheight=900)
 
+
+
+curr_ratings

@@ -87,4 +87,5 @@ main_plot <- ggplot(data = all_epa, aes(x = epa_per_play_off, y = epa_per_play_d
 
 
 main_plot + transition_time(Game) + enter_grow()
-anim_save('EPA_3.gif')
+anim_save('EPA_3.gif', dpi=1000)
+?anim_save
