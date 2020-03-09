@@ -40,22 +40,22 @@ tm_colors <- all_qb_plays$UseColor
 names(tm_colors) <- all_qb_plays$posteam
 
 all_qb_plays$image <- paste0('headshots/',all_qb_plays$PasserRusher,'.png')
-all_qb_plays$image_y <- ifelse(all_qb_plays$epa_per_play < 0, 0, all_qb_plays$epa_per_play) + .09
+all_qb_plays$image_y <- ifelse(all_qb_plays$epa_per_play < 0, 0, all_qb_plays$epa_per_play) + .08
 
 all_qb_plays$logos <- paste0('logos/',all_qb_plays$posteam,'.png')
-all_qb_plays$logos_y <- all_qb_plays$image_y + .13
+all_qb_plays$logos_y <- all_qb_plays$image_y + .12
 
 
 ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = posteam)) + 
 	geom_bar(stat="identity") + 
 	scale_fill_manual(values=tm_colors) +
-	geom_image(aes(image = logos, y = logos_y), size = 0.11, asp = (16/9)) +
-	geom_image(aes(image = image, y = image_y), size = 0.07, asp = (16/9)) +
+	geom_image(aes(image = logos, y = logos_y), size = 0.10, asp = (16/9)) +
+	geom_image(aes(image = image, y = image_y), size = 0.06, asp = (16/9)) +
 	scale_y_continuous(limits= c(-.25,.6)) +
 	labs(title='XFL QB EPA per Play',
        caption = paste0('By Anthony Reinhard | Data from @xflscrapR | EPA Model from @nflscrapR',
 				'\nIncludes Passes, Sacks, and Runs | Excludes receiver fumbles and PATs | Plays <= -4.5 EPA are capped | min. 20 Pass Attempts'),
-       subtitle='Through Week 4 of 2020 using NFL Expected Points model',
+       subtitle='Through Week 5 of 2020 using NFL Expected Points model',
        y = 'EPA / Play') +
 	theme_bw() +
 	theme(
@@ -74,7 +74,7 @@ ggplot(data = all_qb_plays, aes(x = PasserRusher, y = epa_per_play, fill = poste
 		,axis.text.x=element_text(angle = -25, size = 10)
 		,axis.ticks.x=element_blank())
 
-ggsave('XFL QB Week 4.png', width=5 * (16/9), height=5)
+ggsave('XFL QB Week 5.png', width=5 * (16/9), height=5)
 
 #scale_y_continuous(breaks=seq(0,.8,.1),labels=round(seq(-0.3,0.5,0.1),1), limits = c(0,.8)) + 
 all_gms <- aggregate(cbind('plays'=1,epa) ~ PasserRusher + posteam + Game, data = all_qb_df, FUN = sum)
