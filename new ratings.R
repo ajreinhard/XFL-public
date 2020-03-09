@@ -217,7 +217,7 @@ ggplot(data = main_ratings_df, aes(x = wk, y = rate, group = tm)) +
 	) + 
 	theme(legend.position = "none", axis.text.x=element_text(angle = -25, size = 7, hjust=.1, vjust=.7))
 
-ggsave('Ratings over time.png', width = 5 * (16/9), height = 5, dpi = 1000)
+ggsave('Ratings over time.png', width = 5 * (16/9), height = 5, dpi = 700)
 
 
 
