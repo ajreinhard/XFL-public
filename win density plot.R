@@ -35,7 +35,7 @@ ggplot(plot_df, aes(x=Wins, y=Freq, fill = Team, color = Team, label = text)) +
   facet_wrap( ~ Team, nrow=4, scales='free_x', shrink= F) +
   labs(title='XFL Win Distribution',
        caption = 'By Anthony Reinhard  |  Model from statbutler.com/xfl',
-       subtitle='Through Week 4 of 2020',
+       subtitle='Through Week 5 of 2020',
        y = 'Frequency',
        x = 'Win Total') +
   scale_y_continuous(labels = percent, limits = c(0,.35)) +

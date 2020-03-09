@@ -20,7 +20,7 @@ teams_df <- read.csv('teams.csv', stringsAsFactors=F)
 #pass_sd <- sd(pbp_df$epa[which(pbp_df$play_type == 'pass')], na.rm = T)
 #pnorm(8.11,pass_mean * 32, pass_sd * sqrt(32))
 
-game_id <- 17
+game_id <- 20
 #game_df <- pbp_df[which(pbp_df$Game==game_id),]
 
 retrive_games <- function(game_ids) {
@@ -292,7 +292,7 @@ curr_sec_qtr <- (curr_qtr * 900) - total_sec_left
 curr_qtr_sec <- curr_sec_qtr %% 60
 curr_qtr_min <- (curr_sec_qtr - curr_qtr_sec)/60
 
-if (total_sec_left==3600) {
+if (total_sec_left>=3600) {
 	time_frmt <- 'Final'
 } else if (total_sec_left==1800) {
 	time_frmt <- 'Halftime'
@@ -312,7 +312,7 @@ game_df$Graph <- ifelse(game_df$big_play==1,cumsum(game_df$big_play),NA)
 game_df$big_play_y_home <- as.numeric(ifelse(game_df$big_play==1 & game_df$posteam==game_df$home_team,game_df$cum_home_epa,NA))
 game_df$big_play_y_away <- as.numeric(ifelse(game_df$big_play==1 & game_df$posteam!=game_df$home_team,game_df$cum_away_epa,NA))
 
-tm_col <- c(teams_df$Color2[match(game_df$away_team[1],teams_df$Abbr)],teams_df$Color1[match(game_df$home_team[1],teams_df$Abbr)])
+tm_col <- c(teams_df$Color1[match(game_df$away_team[1],teams_df$Abbr)],teams_df$Color1[match(game_df$home_team[1],teams_df$Abbr)])
 names(tm_col) <- c(game_df$away_team[1],game_df$home_team[1])
 
 ggplot(data = game_df, aes(x = game_seconds_remaining)) +
@@ -487,6 +487,3 @@ my_html <- paste0(css_link,game_container,cummOff_html,big_play_html,master_tbl)
 write_html(read_html(my_html), 'epa-box/index.html')
 webshot('epa-box/index.html', 'epa-box/game.png', useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X)", vwidth=1300, vheight=900)
 
-
-
-curr_ratings

@@ -250,7 +250,7 @@ add_nflscrapR_epa <- function(df){
   return(df_ep)
 }
 
-raw_pbp_df <- retrive_games(1:16)
+raw_pbp_df <- retrive_games(1:20)
 clean_pbp <- clean_data(raw_pbp_df)
 pbp_epa <- add_nflscrapR_epa(clean_pbp)
 

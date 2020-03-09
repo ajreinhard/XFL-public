@@ -54,7 +54,7 @@ ggplot(data = team_lev_df, aes(x = Team, ymin = WithLoss,
 	scale_fill_manual(values=tm_colors) +
 	scale_y_continuous(limits= c(0,1), breaks = seq(0,1,.2), labels = percent) +
 	coord_flip() + 
-	labs(title='XFL Week 5 Playoff Leverage',
+	labs(title='XFL Week 6 Playoff Leverage',
        caption = 'By Anthony Reinhard | Model from statbutler.com/xfl',
        subtitle='Potential change in probability of making the playoffs with a win or loss this week',
        y = 'Playoff %') +

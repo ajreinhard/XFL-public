@@ -4,7 +4,7 @@ library(scales)
 
 setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
-epa_week_of <- 4
+epa_week_of <- 5
 
 sim_df <- read.csv('sim results.csv', stringsAsFactors = F, row.names = 1)
 xfl_teams <- row.names(sim_df)
@@ -237,9 +237,9 @@ header <- '<head><title>XFL Elo Projections</title><link rel="stylesheet" type="
 last_update <- format(file.info('sim results.csv')$mtime,'%h %d @ %I:%M%p %Z')
 #'<a href="https://www.bovada.lv/sports/football/xfl/odds-to-win-the-2020-xfl-championship-game-202002081401">XFL champion futures odds on Bovada</a>. ',
 my_sect <- paste0('<body><h1>XFL Elo Projections</h1>',
-		'<p class="sect">Welcome! This page is dedicated XFL elo rankings. The methodology I\'m using is ',
+		'<p class="sect">Welcome! This page is dedicated XFL Elo rankings. The methodology I\'m using is ',
 		'based on <a href = "https://fivethirtyeight.com/features/introducing-nfl-elo-ratings/">FiveThirtyEight\'s ',
-		'pre-2019 NFL elo model</a>. Pre-season ratings were computed based on ',
+		'pre-2019 NFL Elo model</a>. Pre-season ratings were computed based on ',
 		'XFL championship futures from six different sportsbooks. ',
 		'You can read about my pre-season ratings in my post on <a href = "https://xflfanzone.net/2020/02/07/deep-routes-improbable-probability-xfl-week-1/">xflfanzone.net</a>. ',
 		'The difference between two team\'s ratings is equal to the point spread between those two teams. ',

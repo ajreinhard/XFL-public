@@ -40,7 +40,7 @@ ggplot(data = drive_begin_df, aes(x=posteam, y=yardline_100)) +
   scale_y_reverse(limits= c(100,0)) +
   labs(title='XFL Starting Field Position',
        caption = 'By Anthony Reinhard  |  Data from XFL.com',
-       subtitle='Through Week 4 of 2020',
+       subtitle='Through Week 5 of 2020',
        y = 'Yards from End Zone to Start Drive') +
   theme_bw() +
   theme(
