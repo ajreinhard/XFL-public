@@ -3,6 +3,7 @@ library(RJSONIO)
 library(glue)
 library(tidyverse)
 library(lubridate)
+library(nflscrapR)
 
 source('C:/Users/Owner/Documents/Other XFL/helpers.R')
 
@@ -237,7 +238,6 @@ names(df) <- col_names
 }
 
 add_nflscrapR_epa <- function(df){
-  library(nflscrapR)
   cat(glue("WARNING: this relies on the nflscrapR model built exclusively on NFL data, not XFL data. When using these \\
             numbers, keep in mind that it will fail to capture differences between the two leagues. This should only be \\
             used until a XFL-specific EPA model is available."))
@@ -250,37 +250,175 @@ add_nflscrapR_epa <- function(df){
   return(df_ep)
 }
 
+add_air_yac_ep_variables_XFL <- function(pbp_data) {
+  
+  # Final all pass attempts that are not sacks:
+  pass_plays_i <- which(pbp_data$play_type == "pass" & 
+                          pbp_data$sack == 0)
+  pass_pbp_data <- pbp_data[pass_plays_i,]
+  
+  # Using the air_yards need to update the following:
+  # - yrdline100
+  # - TimeSecs_Remaining
+  # - GoalToGo
+  # - ydstogo
+  # - log_ydstogo
+  # - Under_TwoMinute_Warning
+  # - down
+  
+  # Change the names to reflect the old style - will update this later on:
+  pass_pbp_data <- pass_pbp_data %>%
+    dplyr::rename(TimeSecs_Remaining = half_seconds_remaining,
+                  yrdline100 = yardline_100,
+                  GoalToGo = goal_to_go) %>%
+    # Next make the modifications to use the rest of the 
+    dplyr::mutate(down = factor(down),
+                  log_ydstogo = log(ydstogo),
+                  Under_TwoMinute_Warning = dplyr::if_else(TimeSecs_Remaining < 120, 
+                                                           1, 0)) %>%
+  # Rename the old columns to update for calculating the EP from the air:
+    dplyr::rename(old_yrdline100 = yrdline100,
+                  old_ydstogo = ydstogo, 
+                  old_TimeSecs_Remaining = TimeSecs_Remaining,
+                  old_GoalToGo = GoalToGo,
+                  old_down = down) %>%
+    dplyr::mutate(Turnover_Ind = dplyr::if_else(old_down == 4 & air_yards < old_ydstogo,
+                                                1, 0),
+                  yrdline100 = dplyr::if_else(Turnover_Ind == 0,
+                                               old_yrdline100 - air_yards,
+                                               100 - (old_yrdline100 - air_yards)),
+                  ydstogo = dplyr::if_else(air_yards >= old_ydstogo |
+                                             Turnover_Ind == 1,
+                                           10, old_ydstogo - air_yards),
+                  log_ydstog = log(ydstogo),
+                  down = dplyr::if_else(air_yards >= old_ydstogo |
+                                          Turnover_Ind == 1,
+                                        1, as.numeric(old_down) + 1),
+                  GoalToGo = dplyr::if_else((old_GoalToGo == 1 & Turnover_Ind == 0) |
+                                              (Turnover_Ind == 0 & old_GoalToGo == 0 &
+                                              yrdline100 <= 10) |
+                                              (Turnover_Ind == 1 & yrdline100 <= 10),
+                                            1, 0),
+                  TimeSecs_Remaining = old_TimeSecs_Remaining - 5.704673,
+                  Under_TwoMinute_Warning = dplyr::if_else(TimeSecs_Remaining < 120,
+                                                           1, 0),
+                  down = as.factor(down))
+  
+  # Get the new predicted probabilites:
+  if (nrow(pass_pbp_data) > 1) {
+    pass_pbp_data_preds <- as.data.frame(predict(ep_model, newdata = pass_pbp_data, type = "probs"))
+  } else{
+    pass_pbp_data_preds <- as.data.frame(matrix(predict(ep_model, newdata = pass_pbp_data, type = "probs"),
+                                                ncol = 7))
+  }
+  colnames(pass_pbp_data_preds) <- c("No_Score","Opp_Field_Goal","Opp_Safety","Opp_Touchdown",
+                                     "Field_Goal","Safety","Touchdown")
+  # Convert to air EP:
+  pass_pbp_data_preds <- dplyr::mutate(pass_pbp_data_preds, airEP = (Opp_Safety*-2) + (Opp_Field_Goal*-3) + 
+                                         (Opp_Touchdown*-6.5) + (Safety*2) + (Field_Goal*3) + (Touchdown*6.5))
+  
+  # Return back to the passing data:
+  pass_pbp_data$airEP <- pass_pbp_data_preds$airEP
+  
+  # For the plays that have TimeSecs_Remaining 0 or less, set airEP to 0:
+  pass_pbp_data$airEP[which(pass_pbp_data$TimeSecs_Remaining <= 0)] <- 0
+  
+  # Calculate the airEPA based on 4 scenarios:
+  pass_pbp_data$airEPA <- with(pass_pbp_data, ifelse(old_yrdline100 - air_yards <= 0,
+                                                     6.5 - ep,
+                                                     ifelse(old_yrdline100 - air_yards > 99,
+                                                            -2 - ep,
+                                                            ifelse(Turnover_Ind == 1,
+                                                                   (-1*airEP) - ep,
+                                                                   airEP - ep))))
+  
+  # If the play is a two-point conversion then change the airEPA to NA since
+  # no air yards are provided:
+  pass_pbp_data$airEPA <- with(pass_pbp_data, ifelse(pass_pbp_data$extra_point_conversion==0 | is.na(pass_pbp_data$extra_point_conversion),
+                                                     NA, airEPA))
+  # Calculate the yards after catch EPA:
+  pass_pbp_data <- dplyr::mutate(pass_pbp_data, yacEPA = epa - airEPA)
+  
+  # if Yards after catch is 0 make yacEPA set to 0:
+  pass_pbp_data$yacEPA <- ifelse(pass_pbp_data$yards_after_catch == 0 & pass_pbp_data$complete_pass==1,
+                                 0, pass_pbp_data$yacEPA)
+  
+  # if Yards after catch is 0 make airEPA set to EPA:
+  pass_pbp_data$airEPA <- ifelse(pass_pbp_data$yards_after_catch == 0 & pass_pbp_data$complete_pass == 1,
+                                 pass_pbp_data$epa, pass_pbp_data$airEPA)
+  
+  # Now add airEPA and yacEPA to the original dataset:
+  pbp_data$airEPA <- NA
+  pbp_data$yacEPA <- NA
+  pbp_data$airEPA[pass_plays_i] <- pass_pbp_data$airEPA
+  pbp_data$yacEPA[pass_plays_i] <- pass_pbp_data$yacEPA
+  
+  # Now change the names to be the right style, calculate the completion form
+  # of the variables, as well as the cumulative totals and return:
+  pbp_data %>%
+    dplyr::rename(air_epa = airEPA,
+                  yac_epa = yacEPA) %>%
+    dplyr::mutate(comp_air_epa = dplyr::if_else(complete_pass == 1,
+                                                air_epa, 0),
+                  comp_yac_epa = dplyr::if_else(complete_pass == 1,
+                                                yac_epa, 0),
+                  home_team_comp_air_epa = dplyr::if_else(posteam == home_team,
+                                                          comp_air_epa, -comp_air_epa),
+                  away_team_comp_air_epa = dplyr::if_else(posteam == away_team,
+                                                          comp_air_epa, -comp_air_epa),
+                  home_team_comp_yac_epa = dplyr::if_else(posteam == home_team,
+                                                          comp_yac_epa, -comp_yac_epa),
+                  away_team_comp_yac_epa = dplyr::if_else(posteam == away_team,
+                                                          comp_yac_epa, -comp_yac_epa),
+                  home_team_comp_air_epa = dplyr::if_else(is.na(home_team_comp_air_epa),
+                                                 0, home_team_comp_air_epa),
+                  away_team_comp_air_epa = dplyr::if_else(is.na(away_team_comp_air_epa),
+                                                 0, away_team_comp_air_epa),
+                  home_team_comp_yac_epa = dplyr::if_else(is.na(home_team_comp_yac_epa),
+                                                     0, home_team_comp_yac_epa),
+                  away_team_comp_yac_epa = dplyr::if_else(is.na(away_team_comp_yac_epa),
+                                                     0, away_team_comp_yac_epa),
+                  total_home_comp_air_epa = cumsum(home_team_comp_air_epa),
+                  total_away_comp_air_epa = cumsum(away_team_comp_air_epa),
+                  total_home_comp_yac_epa = cumsum(home_team_comp_yac_epa),
+                  total_away_comp_yac_epa = cumsum(away_team_comp_yac_epa),
+                  # Same but for raw - not just completions:
+                  home_team_raw_air_epa = dplyr::if_else(posteam == home_team,
+                                                          air_epa, -air_epa),
+                  away_team_raw_air_epa = dplyr::if_else(posteam == away_team,
+                                                          air_epa, -air_epa),
+                  home_team_raw_yac_epa = dplyr::if_else(posteam == home_team,
+                                                          yac_epa, -yac_epa),
+                  away_team_raw_yac_epa = dplyr::if_else(posteam == away_team,
+                                                          yac_epa, -yac_epa),
+                  home_team_raw_air_epa = dplyr::if_else(is.na(home_team_raw_air_epa),
+                                                          0, home_team_raw_air_epa),
+                  away_team_raw_air_epa = dplyr::if_else(is.na(away_team_raw_air_epa),
+                                                          0, away_team_raw_air_epa),
+                  home_team_raw_yac_epa = dplyr::if_else(is.na(home_team_raw_yac_epa),
+                                                          0, home_team_raw_yac_epa),
+                  away_team_raw_yac_epa = dplyr::if_else(is.na(away_team_raw_yac_epa),
+                                                          0, away_team_raw_yac_epa),
+                  total_home_raw_air_epa = cumsum(home_team_raw_air_epa),
+                  total_away_raw_air_epa = cumsum(away_team_raw_air_epa),
+                  total_home_raw_yac_epa = cumsum(home_team_raw_yac_epa),
+                  total_away_raw_yac_epa = cumsum(away_team_raw_yac_epa)) %>%
+    return
+}
+
+
 raw_pbp_df <- retrive_games(1:20)
 clean_pbp <- clean_data(raw_pbp_df)
 pbp_epa <- add_nflscrapR_epa(clean_pbp)
 
-write.csv(pbp_epa, 'scraped PBP.csv', row.names = F)
+###add in air yards
+air_yards <- read.csv('air_yards_fixed.csv', stringsAsFactors = F)
+pbp_epa <- read.csv('scraped PBP.csv', stringsAsFactors = F)
+names(air_yards)[which(names(air_yards)=='AIR.YARDS')] <- 'air_yards'
 
+pbp_epa <- merge(pbp_epa, air_yards[,c('play_id','air_yards')], by = 'play_id', all.x = T)
+pbp_epa$air_yards <- as.numeric(pbp_epa$air_yards)
+pbp_epa$yards_after_catch <- pbp_epa$yards_gained - pbp_epa$air_yards
+air_yrds_epa <- add_air_yac_ep_variables_XFL(pbp_epa)
 
-
-
-pbp_epa[which(pbp_epa$passer_player_name=='L.Jones'),]
-
-str_extract(as.character(raw_pbp_df$StartTime), "[0-9]{2}")
-
-quarter_seconds_remaining = as.numeric(str_extract(as.character(time), "(?<=:)[0-9]{2}")) * 60 +
-as.numeric(str_extract(as.character(raw_pbp_df$StartTime), "[0-9]{2}$")),
-
-
-str(raw_pbp_df)
-
-
-
-clean_pbp$down[which(clean_pbp$play_type=='kickoff')] <- NA
-clean_pbp$ydstogo[which(clean_pbp$play_type=='kickoff')] <- NA
-
-df <- clean_pbp
-str(clean_pbp)
-
-df$
-calculate_expected_points(df[1:4,], "half_seconds_remaining", "yardline_100", "down", "ydstogo", "goal_to_go",td_value = 6.5)
-
-
-
-
-
+write.csv(air_yrds_epa, 'scraped PBP.csv', row.names = F)
