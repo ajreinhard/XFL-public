@@ -334,7 +334,7 @@ add_air_yac_ep_variables_XFL <- function(pbp_data) {
   
   # If the play is a two-point conversion then change the airEPA to NA since
   # no air yards are provided:
-  pass_pbp_data$airEPA <- with(pass_pbp_data, ifelse(pass_pbp_data$extra_point_conversion==0 | is.na(pass_pbp_data$extra_point_conversion),
+  pass_pbp_data$airEPA <- with(pass_pbp_data, ifelse(pass_pbp_data$extra_point_conversion==1,
                                                      NA, airEPA))
   # Calculate the yards after catch EPA:
   pass_pbp_data <- dplyr::mutate(pass_pbp_data, yacEPA = epa - airEPA)
@@ -418,7 +418,9 @@ names(air_yards)[which(names(air_yards)=='AIR.YARDS')] <- 'air_yards'
 
 pbp_epa <- merge(pbp_epa, air_yards[,c('play_id','air_yards')], by = 'play_id', all.x = T)
 pbp_epa$air_yards <- as.numeric(pbp_epa$air_yards)
-pbp_epa$yards_after_catch <- pbp_epa$yards_gained - pbp_epa$air_yards
+pbp_epa$yards_after_catch <- ifelse(pbp_epa$complete_pass==0, 0, pbp_epa$yards_gained - pbp_epa$air_yards)
+pbp_epa$extra_point_conversion <- ifelse(is.na(pbp_epa$extra_point_conversion), 0, pbp_epa$extra_point_conversion)
 air_yrds_epa <- add_air_yac_ep_variables_XFL(pbp_epa)
 
+air_yrds_epa <- air_yrds_epa[order(air_yrds_epa$Game, -air_yrds_epa$game_seconds_remaining),]
 write.csv(air_yrds_epa, 'scraped PBP.csv', row.names = F)
