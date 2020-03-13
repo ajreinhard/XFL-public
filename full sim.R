@@ -101,8 +101,9 @@ sim_res <- sapply(1:sim_cnt, function(sm) {
   TD_mar_L <- aggregate(cbind(-TD_margin,-WinnerMargin) ~ TmLoser, data = all_gms, FUN = sum)
   rate_curr <- merge(rate_curr, TD_mar_W, by.x = 'Tm', by.y = 'TmWinner', all.x = T)
   rate_curr <- merge(rate_curr, TD_mar_L, by.x = 'Tm', by.y = 'TmLoser', all.x = T)
-  rate_curr$TD_mar <- rate_curr$TD_margin + rate_curr$V1
-  rate_curr$Pts_mar <- rate_curr$WinnerMargin + rate_curr$V2
+  rate_curr$TD_mar <- rate_curr$TD_margin + ifelse(is.na(rate_curr$V1),0,rate_curr$V1)
+  rate_curr$Pts_mar <- rate_curr$WinnerMargin + ifelse(is.na(rate_curr$V2),0,rate_curr$V2)
+
 
   h2h_calc <- function(all_gms, tms_vec) {
     all_gms$concat <- paste0(all_gms$Away,'_',all_gms$Home)
