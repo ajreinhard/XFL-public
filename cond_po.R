@@ -2,14 +2,13 @@ library(ggplot2)
 library(scales)
 library(extrafont)
 library(png)
-setwd('C:/Users/rei1740/Desktop/Anthony/XFL')
+setwd('C:/Users/Owner/Documents/GitHub/XFL')
 
-sim_res_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/sim_res.csv', stringsAsFactors=F)
-teams_df <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/teams.csv', stringsAsFactors=F)
+sim_res_df <- read.csv('sim_res.csv', stringsAsFactors=F)
+teams_df <- read.csv('teams.csv', stringsAsFactors=F)
 
 teams_df$Color2[4] <- teams_df$Color3[4]
 teams_df$Color1[4] <- teams_df$Color4[4]
-
 
 bar_fill <- teams_df$Color1
 names(bar_fill) <- teams_df$Abbr
@@ -32,8 +31,10 @@ wins_to_po_list <- lapply(teams_df$Abbr, function(x) {
 
 plot_df <- data.frame(do.call(rbind, wins_to_po_list), stringsAsFactors = F)
 
-games_left <- nrow(plot_df)/8-1
-plot_df$close_rec <- rep(paste0(0:games_left,'-',games_left:0),8)
+
+#games_left <- nrow(plot_df)/8-1
+#plot_df$close_rec <- rep(paste0(0:games_left,'-',games_left:0),8)
+plot_df$close_rec <- factor(paste0(plot_df$Wins,'-',10-plot_df$Wins), paste0(0:10,'-',10:0))
 
 plot_df$PO_prob[which(plot_df$PO_prob==0)] <- NA
 plot_df$text <- percent(round(plot_df$PO_prob,2))
@@ -43,20 +44,19 @@ plot_df$Team <- factor(plot_df$Team,c('DC','NY','STL','TB','DAL','HOU','LA','SEA
 
 ggplot(plot_df, aes(x=close_rec, y=PO_prob, fill = Team, color = Team, label = text)) + 
   geom_col(width = 1) +
-  geom_text(color = 'darkblue', size = 2, nudge_y = .05, family='Bahnschrift') +
+  geom_text(color = 'darkblue', size = 2, nudge_y = .05, family='HP Simplified') +
   facet_wrap( ~ Team, nrow=4, scales='free_x', shrink= F) +
-  labs(title='XFL Win Distribution',
+  labs(title='XFL Playoff Probability by Final Record',
        caption = 'By Anthony Reinhard  |  Model from statbutler.com/xfl',
-       subtitle='Through Week 3 of 2020',
-       y = 'Frequency',
-       x = 'Win Total') +
-  scale_y_continuous(labels = percent, limits = c(0,1.1), breaks = seq(0,1,.25)) +
-  #scale_x_continuous(breaks = 0:10) +
+       subtitle='Through Week 5 of 2020',
+       y = 'Probability of Making the Playoffs',
+       x = 'Final Record') +
+  scale_y_continuous(labels = percent, limits = c(0,1.05), breaks = seq(0,1,.25)) +
   scale_fill_manual(values=bar_fill) +
   scale_color_manual(values=line_fill) +
   theme_bw() +
   theme(
-    text = element_text(family='Bahnschrift', color='darkblue'),
+    text = element_text(family='HP Simplified', color='darkblue'),
     plot.background = element_rect(fill = 'grey95'),
     panel.border = element_rect(color = 'darkblue'),
     axis.ticks = element_line(color = 'darkblue'),
@@ -74,10 +74,10 @@ ggplot(plot_df, aes(x=close_rec, y=PO_prob, fill = Team, color = Team, label = t
   )
 
 
-ggsave(paste0('cond_po.png'), dpi=1000, height = 5 * (16/9), width = 5)
+ggsave(paste0('cond_po.png'), dpi=700, height = 5 * (16/9), width = 5)
 
-orig_plot <- readPNG('win_plot_pre.png')
-png('win_plot_post.png',width = 5, height = 5 * (16/9), units = 'in', res = 500)
+orig_plot <- readPNG('cond_po.png')
+png('cond_po_post.png',width = 5, height = 5 * (16/9), units = 'in', res = 500)
 par(usr = c(0,nrow(orig_plot),0,ncol(orig_plot)),mar = rep(0, 4))
 plot(0,type='n',axes=FALSE,ann=FALSE)
 lim <- par()
@@ -96,7 +96,7 @@ rasterImage(orig_plot, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
 #row_mid <- (5-ceiling(i/2)) * .475 - 0.92
 
 for (i in 1:8) {
-  tm_logo <-  readPNG(paste0('better text/',levels(plot_df$Team)[i],'.png'))
+  tm_logo <-  readPNG(paste0('team-text/',levels(plot_df$Team)[i],'.png'))
   col_mid <- ifelse(i %% 2==1, 0.845, 1.235)
   row_mid <- (5-ceiling(i/2)) * .49 - 1.055
   width_split <- ((ncol(tm_logo)/nrow(tm_logo)) * .04)/2.8
@@ -105,7 +105,6 @@ for (i in 1:8) {
 dev.off()
 
 
-?geom_col
 
 
 #for (i in 1:8) {
