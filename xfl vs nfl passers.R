@@ -6,8 +6,8 @@ library(scales)
 library(png)
 
 ### read in XFL pbp and make model
-pbp <- read.csv('https://github.com/ajreinhard/xfl-public/raw/master/epa/scraped PBP.csv', stringsAsFactors=F)
-xfl_air_yards_bam <- bam(complete_pass ~ s(air_yards), data = pbp, method = "fREML", discrete = TRUE, family = binomial(link='logit'))
+pbp <- read.csv('epa/scraped PBP Final.csv', stringsAsFactors=F)
+xfl_air_yards_bam <- bam(complete_pass ~ s(air_yards), data = pbp, method = "fREML", discrete = TRUE, subset = throwaway==0, family = binomial(link='logit'))
 
 ### read in AAF pbp and make model
 plays_df <- read.csv('C:/Users/Owner/Documents/AWS/AAF/plays.csv', stringsAsFactors = F)
@@ -83,7 +83,8 @@ ggplot(data = fit_predict, aes(x = air_yards)) +
     plot.subtitle = element_text(size = 8),
     plot.caption = element_text(size = 5),
     legend.background = element_rect(fill = 'grey90',color = 'darkblue'),
-    legend.key = element_blank()
+    legend.key = element_blank(),
+    legend.position = c(0.25, 0.25)
   )
 
 ggsave('NFL vs AAF-XFL Passers.png', width=5, height=5, dpi = 700)

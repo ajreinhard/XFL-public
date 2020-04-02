@@ -4,6 +4,7 @@ library(glue)
 library(tidyverse)
 library(lubridate)
 library(nflscrapR)
+load('C:/Users/Owner/Documents/Other XFL/ep_model.rData')
 
 source('C:/Users/Owner/Documents/Other XFL/helpers.R')
 
@@ -132,7 +133,7 @@ names(df) <- col_names
                                                 !str_detect(desc, "[0-9]") |
                                                 interception == 1, 0, 1)),
            # Was the pass thrown away?
-           throwaway = case_when(pass_attempt == 1 ~ ifelse(str_detect(desc, "incomplete\\."), 1, 0)),
+           throwaway = case_when(pass_attempt == 1 ~ ifelse(str_detect(desc, "incomplete\\.") | str_detect(desc, "Thrown Away"), 1, 0)),
            # Pass Depth and Direction buckets
            pass_length = str_extract(desc, "(?<=pass (incomplete )?)(short)|(deep)"),
            pass_location = str_extract(desc, "(?<=pass (incomplete )?((short)|(deep)) )(left)|(middle)|(right)"),
@@ -411,9 +412,11 @@ raw_pbp_df <- retrive_games(1:20)
 clean_pbp <- clean_data(raw_pbp_df)
 pbp_epa <- add_nflscrapR_epa(clean_pbp)
 
+write.csv(pbp_epa, 'scraped PBP Final.csv', row.names = F)
+
 ###add in air yards
 air_yards <- read.csv('air_yards_fixed.csv', stringsAsFactors = F)
-pbp_epa <- read.csv('scraped PBP.csv', stringsAsFactors = F)
+pbp_epa <- read.csv('scraped PBP Final.csv', stringsAsFactors = F)
 names(air_yards)[which(names(air_yards)=='AIR.YARDS')] <- 'air_yards'
 
 pbp_epa <- merge(pbp_epa, air_yards[,c('play_id','air_yards')], by = 'play_id', all.x = T)
@@ -423,4 +426,4 @@ pbp_epa$extra_point_conversion <- ifelse(is.na(pbp_epa$extra_point_conversion), 
 air_yrds_epa <- add_air_yac_ep_variables_XFL(pbp_epa)
 
 air_yrds_epa <- air_yrds_epa[order(air_yrds_epa$Game, -air_yrds_epa$game_seconds_remaining),]
-write.csv(air_yrds_epa, 'scraped PBP.csv', row.names = F)
+write.csv(air_yrds_epa, 'scraped PBP Final.csv', row.names = F)
