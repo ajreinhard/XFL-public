@@ -14,6 +14,7 @@ points_df$PA <- as.numeric(points_df$PA)
 points_agg_df <- aggregate(.~Tm, data = points_df, FUN = mean)
 points_agg_df$logo <- paste0('logos/',points_agg_df$Tm,'.png')
 
+ggplot(data = points_agg_df, aes(x = PF, y = PA)) +
 	geom_image(aes(image = logo), size = .12) +
 	scale_y_reverse(limits = c(28, 12), breaks = seq(28, 12, -4)) +
 	scale_x_continuous(limits = c(12, 28), breaks = seq(12, 28, 4)) +
